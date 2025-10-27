@@ -1,6 +1,6 @@
 # Scoring_Sespsis
 
-# Projet de Scoring et Classification des Patients Septiques
+# Projet de Scoring et Classification des Patients
 
 ## 📋 Description du Projet
 
