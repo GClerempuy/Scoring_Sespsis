@@ -581,55 +581,39 @@
             
             const lines = csvText.trim().split('\n');
             
-            // Parser chaque ligne (format basé sur votre exemple)
+            // Parser chaque ligne
             for (let i = 0; i < lines.length; i++) {
                 // Skip header si présent
                 if (i === 0 && lines[i].toLowerCase().includes('feature')) continue;
                 
-                // Nettoyer la ligne et diviser par tab ou virgule
                 const line = lines[i].trim();
                 if (!line) continue;
                 
-                // Essayer de parser avec différents délimiteurs
-                let parts = line.split('\t');
-                if (parts.length < 2) {
-                    parts = line.split(',');
-                }
+                // Parser CSV avec gestion des guillemets
+                const parts = parseCSVLine(line);
                 
                 if (parts.length >= 2) {
-                    const feature = parts[0].trim();
+                    // Nettoyer les guillemets de la feature
+                    const feature = parts[0].replace(/^["']|["']$/g, '').trim();
                     
-                    // Trouver le coefficient (peut être en position 1 ou 2 selon le format)
-                    let coeffValue = null;
-                    for (let j = 1; j < Math.min(3, parts.length); j++) {
-                        const val = parseFloat(parts[j].replace(',', '.'));
-                        if (!isNaN(val)) {
-                            coeffValue = val;
-                            break;
-                        }
-                    }
+                    // Parser le coefficient
+                    const coeffValue = parseFloat(parts[1].replace(/^["']|["']$/g, '').replace(',', '.'));
                     
-                    if (coeffValue !== null) {
-                        // Déterminer le signe du coefficient
-                        if (parts[1].includes('-')) {
-                            coeffValue = -Math.abs(coeffValue);
-                        }
-                        
+                    if (!isNaN(coeffValue) && feature) {
                         coefficients[feature] = coeffValue;
                         
-                        // Déterminer le type (Gène ou Clinique)
-                        if (parts.length > 2) {
-                            const typeField = parts.find(p => p.includes('Gène') || p.includes('Clinique'));
-                            featureTypes[feature] = typeField && typeField.includes('Clinique') ? 'Clinique' : 'Gène';
+                        // Déterminer le type (colonne 3)
+                        if (parts.length > 3) {
+                            const typeField = parts[3].replace(/^["']|["']$/g, '').trim();
+                            featureTypes[feature] = typeField;
                         } else {
-                            // Deviner basé sur le nom de la feature
                             featureTypes[feature] = feature.startsWith('ENSG') ? 'Gène' : 'Clinique';
                         }
                         
-                        // Déterminer la direction
-                        if (parts.length > 3) {
-                            const directionField = parts.find(p => p.includes('Favorable') || p.includes('Défavorable'));
-                            featureDirections[feature] = directionField || (coeffValue > 0 ? 'Favorable' : 'Défavorable');
+                        // Déterminer la direction (colonne 4)
+                        if (parts.length > 4) {
+                            const directionField = parts[4].replace(/^["']|["']$/g, '').trim();
+                            featureDirections[feature] = directionField;
                         } else {
                             featureDirections[feature] = coeffValue > 0 ? 'Favorable' : 'Défavorable';
                         }
@@ -637,8 +621,12 @@
                 }
             }
             
+            console.log('Coefficients chargés:', coefficients);
+            console.log('Types:', featureTypes);
+            
             // Si aucun coefficient n'a été trouvé, utiliser les exemples
             if (Object.keys(coefficients).length === 0) {
+                alert('Aucun coefficient trouvé dans le fichier. Utilisation des coefficients d\'exemple.');
                 loadExampleCoefficients();
             } else {
                 generateInputs();
@@ -646,6 +634,32 @@
                 document.getElementById('input-section').style.display = 'block';
                 updateScoreRange();
             }
+        }
+        
+        // Fonction helper pour parser une ligne CSV avec guillemets
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"' || char === "'") {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            if (current) {
+                result.push(current);
+            }
+            
+            return result;
         }
 
         // Charger des coefficients d'exemple basés sur votre fichier
@@ -749,6 +763,9 @@
                 const inputGroup = document.createElement('div');
                 inputGroup.className = type === 'Gène' ? 'input-group gene-input' : 'input-group clinical-input';
                 
+                // Créer un ID valide pour HTML (remplacer les caractères problématiques)
+                const safeId = 'input_' + feature.replace(/[^a-zA-Z0-9_]/g, '_');
+                
                 // Créer un label plus lisible
                 let displayName = feature;
                 if (feature.startsWith('ENSG')) {
@@ -764,13 +781,13 @@
                 const coeffClass = coefficient > 0 ? 'coefficient-positive' : 'coefficient-negative';
                 
                 inputGroup.innerHTML = `
-                    <label for="${feature}">
+                    <label for="${safeId}">
                         ${displayName}
                         <span class="coefficient-display ${coeffClass}">
                             ${coefficient > 0 ? '+' : ''}${coefficient.toFixed(4)}
                         </span>
                     </label>
-                    <input type="number" id="${feature}" placeholder="Valeur" step="0.01">
+                    <input type="number" id="${safeId}" data-feature="${feature}" placeholder="Valeur" step="0.01">
                     <small>
                         ${direction} | ${type}
                     </small>
@@ -788,20 +805,18 @@
         function loadExampleData() {
             document.getElementById('patient-id').value = 'PAT001';
             
-            // Valeurs d'exemple pour les features
+            // Valeurs d'exemple adaptées aux nouvelles features
             const exampleValues = {
-                'ENSG00000185022': 0.5,
-                'ENSG00000075399': 0.3,
-                'ENSG00000175216': 0.8,
-                'ENSG00000163214': 0.6,
-                'ENSG00000130803': 0.4,
-                'I_AGE': 65,
-                'D1_TAILLE': 175,
-                'D1_POIDS': 80
+                'ENSG00000134014': 1.2,
+                'ENSG00000137802': 0.8,
+                'ENSG00000155229': 1.5,
+                'ENSG00000175216': 2.1,
+                'I_AGE': 65
             };
             
+            // Remplir les inputs en utilisant l'attribut data-feature
             for (const [feature, value] of Object.entries(exampleValues)) {
-                const input = document.getElementById(feature);
+                const input = document.querySelector(`input[data-feature="${feature}"]`);
                 if (input) {
                     input.value = value;
                 }
@@ -814,8 +829,9 @@
             let allFilled = true;
             const missingFields = [];
             
+            // Récupérer toutes les valeurs en utilisant data-feature
             for (const feature of Object.keys(coefficients)) {
-                const input = document.getElementById(feature);
+                const input = document.querySelector(`input[data-feature="${feature}"]`);
                 if (input && input.value !== '') {
                     values[feature] = parseFloat(input.value);
                 } else {
@@ -966,7 +982,7 @@
             
             csv += `${patientId},`;
             for (const feature of Object.keys(coefficients)) {
-                const input = document.getElementById(feature);
+                const input = document.querySelector(`input[data-feature="${feature}"]`);
                 csv += `${input ? input.value : ''},`;
             }
             csv += `${rawScore},${normalizedScore},${cluster}`;
@@ -989,8 +1005,9 @@
         function resetForm() {
             document.getElementById('patient-id').value = '';
             
+            // Réinitialiser tous les inputs en utilisant data-feature
             for (const feature of Object.keys(coefficients)) {
-                const input = document.getElementById(feature);
+                const input = document.querySelector(`input[data-feature="${feature}"]`);
                 if (input) input.value = '';
             }
             
