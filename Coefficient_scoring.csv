@@ -1,9 +1,24 @@
-"Feature","Coefficient","Abs_Coefficient","Type","Effect_Type","Pvalue","Significant"
-"ENSG00000185022",-2.22491486620172,2.22491486620172,"Gène","Défavorable",0.00196379961965923,"Significatif"
-"ENSG00000075399",-1.378471573853,1.378471573853,"Gène","Défavorable",0.000320586200300285,"Significatif"
-"ENSG00000175216",0.679930327513537,0.679930327513537,"Gène","Favorable",0.148351881838184,"Non significatif"
-"ENSG00000163214",0.636161018925634,0.636161018925634,"Gène","Favorable",0.087159451160313,"Tendanciel"
-"ENSG00000130803",0.13051227278668,0.13051227278668,"Gène","Favorable",0.451090263549277,"Non significatif"
-"I_AGE",-0.0253137625554965,0.0253137625554965,"Clinique","Défavorable",0.0157482558228929,"Significatif"
-"D1_TAILLE",0.0227895359912273,0.0227895359912273,"Clinique","Favorable",0.0224244651386027,"Significatif"
-"D1_POIDS",-0.0055830212420012,0.0055830212420012,"Clinique","Favorable",0.730983255068301,"Non significatif"
+"Feature","Coefficient","Type","Abs_Coefficient"
+"ENSG00000134014",0.488,"Selected",0.488
+"ENSG00000137802",0.3306,"Selected",0.3306
+"ENSG00000155229",0.3273,"Selected",0.3273
+"ENSG00000175216",0.241,"Selected",0.241
+"I_AGE",-0.0123,"Selected",0.0123
+"I_SEX",0,"Not Selected",0
+"D1_POIDS",0,"Not Selected",0
+"D1_IGS2",0,"Not Selected",0
+"D1_SOFA",0,"Not Selected",0
+"D1_TAILLE",0,"Not Selected",0
+"IMC",0,"Not Selected",0
+"CS_tt",0,"Not Selected",0
+"D1_IGS2K",0,"Not Selected",0
+"D1_IGS2G",0,"Not Selected",0
+"ENSG00000163214",0,"Not Selected",0
+"ENSG00000163605",0,"Not Selected",0
+"ENSG00000099219",0,"Not Selected",0
+"ENSG00000174197",0,"Not Selected",0
+"ENSG00000102900",0,"Not Selected",0
+"ENSG00000075399",0,"Not Selected",0
+"ENSG00000167536",0,"Not Selected",0
+"ENSG00000130803",0,"Not Selected",0
+"ENSG00000185022",0,"Not Selected",0
