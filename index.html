@@ -3,234 +3,1005 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur d'IMC</title>
+    <title>Calculateur de Score de Sepsis - UVSQ</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 20px;
         }
-        
+
         .container {
+            max-width: 1200px;
+            margin: 0 auto;
             background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
         }
-        
-        h1 {
-            color: #333;
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: white;
+            padding: 30px;
             text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .warning-banner {
+            background: #fef3c7;
+            border-left: 5px solid #f59e0b;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 5px;
+        }
+
+        .warning-banner strong {
+            color: #92400e;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
             margin-bottom: 30px;
         }
-        
-        .input-group {
+
+        .section h2 {
+            color: #1f2937;
             margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
         }
-        
-        label {
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s;
+        }
+
+        .input-group:hover {
+            border-color: #6366f1;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+        }
+
+        .input-group label {
             display: block;
+            color: #374151;
+            font-weight: 600;
             margin-bottom: 5px;
-            color: #555;
-            font-weight: bold;
+            font-size: 0.95em;
         }
-        
-        input {
+
+        .input-group input, .input-group select {
             width: 100%;
             padding: 10px;
-            border: 2px solid #ddd;
+            border: 2px solid #d1d5db;
             border-radius: 5px;
-            box-sizing: border-box;
             font-size: 16px;
+            transition: border-color 0.3s;
         }
-        
-        input:focus {
+
+        .input-group input:focus, .input-group select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #6366f1;
         }
-        
+
+        .input-group small {
+            display: block;
+            margin-top: 5px;
+            color: #6b7280;
+            font-size: 0.85em;
+        }
+
+        .gene-input {
+            background: #fef3e2 !important;
+        }
+
+        .clinical-input {
+            background: #e0f2fe !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6366f1;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
         button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 12px 30px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s;
         }
-        
-        button:hover {
-            transform: scale(1.02);
+
+        .btn-calculate {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
         }
-        
-        #result {
-            margin-top: 20px;
+
+        .btn-calculate:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-calculate:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-reset {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #4b5563;
+        }
+
+        .btn-load {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-load:hover {
+            background: #2563eb;
+        }
+
+        #results {
+            display: none;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-card {
+            background: white;
             padding: 20px;
-            background: #f8f9fa;
             border-radius: 10px;
             text-align: center;
-            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        
-        #imc-value {
-            font-size: 36px;
+
+        .result-card h3 {
+            color: #6b7280;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 2.5em;
             font-weight: bold;
-            color: #333;
-            margin: 10px 0;
+            margin-bottom: 5px;
         }
-        
-        #imc-category {
-            font-size: 20px;
-            margin: 10px 0;
-            padding: 10px;
+
+        .cluster-1 {
+            color: #10b981;
+        }
+
+        .cluster-2 {
+            color: #ef4444;
+        }
+
+        .risk-assessment {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .risk-bar {
+            height: 40px;
+            background: linear-gradient(to right, #10b981 0%, #fbbf24 50%, #ef4444 100%);
+            border-radius: 20px;
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .risk-indicator {
+            position: absolute;
+            top: -10px;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border: 4px solid #1f2937;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .threshold-line {
+            position: absolute;
+            top: -5px;
+            width: 2px;
+            height: 50px;
+            background: #1f2937;
+            left: 31.84%;
+            transform: translateX(-50%);
+        }
+
+        .threshold-label {
+            position: absolute;
+            top: 50px;
+            left: 31.84%;
+            transform: translateX(-50%);
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border-left: 5px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
             border-radius: 5px;
         }
-        
-        .underweight {
-            background: #d4edda;
-            color: #155724;
+
+        .info-box h4 {
+            color: #1e40af;
+            margin-bottom: 10px;
         }
-        
-        .normal {
-            background: #d1ecf1;
-            color: #0c5460;
+
+        .coefficient-display {
+            display: inline-block;
+            background: #e5e7eb;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
         }
-        
-        .overweight {
-            background: #fff3cd;
-            color: #856404;
+
+        .coefficient-positive {
+            background: #dcfce7;
+            color: #166534;
         }
-        
-        .obese {
-            background: #f8d7da;
-            color: #721c24;
+
+        .coefficient-negative {
+            background: #fee2e2;
+            color: #991b1b;
         }
-        
-        .info {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e9ecef;
+
+        .feature-status {
+            text-align: center;
+            padding: 20px;
+            background: #f9fafb;
             border-radius: 10px;
-            font-size: 14px;
-            color: #495057;
+            margin-bottom: 20px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .status-item {
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .status-gene {
+            background: #fef3e2;
+            color: #92400e;
+        }
+
+        .status-clinical {
+            background: #e0f2fe;
+            color: #075985;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table th, table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        table th {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Calculateur d'IMC</h1>
-        
-        <div class="input-group">
-            <label for="weight">Poids (kg) :</label>
-            <input type="number" id="weight" placeholder="Ex: 70" step="0.1" min="1">
+        <div class="header">
+            <h1>📊 Calculateur de Score de Sepsis</h1>
+            <p>Modèle de stratification des risques basé sur LASSO et clustering - UVSQ</p>
         </div>
-        
-        <div class="input-group">
-            <label for="height">Taille (cm) :</label>
-            <input type="number" id="height" placeholder="Ex: 175" step="1" min="1">
+
+        <div class="warning-banner">
+            <strong>⚠️ Avertissement médical :</strong> Cet outil est destiné à un usage de recherche et d'aide à la décision clinique. 
+            Il ne remplace pas le jugement médical professionnel. Les résultats doivent être interprétés dans le contexte clinique global du patient.
         </div>
-        
-        <button onclick="calculateIMC()">Calculer mon IMC</button>
-        
-        <div id="result">
-            <div id="imc-value"></div>
-            <div id="imc-category"></div>
-            <div id="imc-description"></div>
-        </div>
-        
-        <div class="info">
-            <strong>Comment interpréter l'IMC ?</strong><br>
-            • Moins de 18,5 : Insuffisance pondérale<br>
-            • 18,5 à 24,9 : Poids normal<br>
-            • 25 à 29,9 : Surpoids<br>
-            • 30 et plus : Obésité<br><br>
-            <small>⚠️ L'IMC est un indicateur général qui ne prend pas en compte la masse musculaire, l'âge ou le sexe.</small>
+
+        <div class="content">
+            <div class="section">
+                <h2>📁 Chargement des Coefficients</h2>
+                <div class="btn-container">
+                    <button class="btn-load" onclick="loadCoefficientsFromGitHub()">
+                        🔄 Charger les Coefficients depuis GitHub
+                    </button>
+                    <input type="file" id="fileInput" accept=".csv,.txt,.tsv" style="display: none;" onchange="loadCoefficientsFromFile(event)">
+                    <button class="btn-load" onclick="document.getElementById('fileInput').click()">
+                        📂 Charger depuis un Fichier Local
+                    </button>
+                </div>
+                <div id="loading-status"></div>
+                <div id="feature-status" class="feature-status" style="display: none;">
+                    <h3>Features Chargées</h3>
+                    <div id="status-content"></div>
+                </div>
+            </div>
+
+            <div id="input-section" style="display: none;">
+                <div class="section">
+                    <h2>📋 Métadonnées du Patient</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="patient-id">Identifiant Patient</label>
+                            <input type="text" id="patient-id" placeholder="Ex: PAT001">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>🧬 Variables du Modèle</h2>
+                    <p style="margin-bottom: 20px; color: #6b7280;">
+                        Entrez les valeurs pour chaque variable. Les variables sont automatiquement chargées depuis votre fichier de coefficients.
+                    </p>
+                    
+                    <h3 style="color: #92400e; margin-bottom: 15px;">🧬 Variables Génomiques</h3>
+                    <div id="gene-inputs" class="input-grid">
+                        <!-- Les inputs génomiques seront générés ici -->
+                    </div>
+                    
+                    <h3 style="color: #075985; margin-bottom: 15px; margin-top: 30px;">📊 Variables Cliniques</h3>
+                    <div id="clinical-inputs" class="input-grid">
+                        <!-- Les inputs cliniques seront générés ici -->
+                    </div>
+                </div>
+
+                <div class="btn-container">
+                    <button class="btn-load" onclick="loadExampleData()">
+                        📝 Charger Exemple
+                    </button>
+                    <button class="btn-calculate" onclick="calculateScore()" id="calculate-btn">
+                        🔬 Calculer le Score
+                    </button>
+                    <button class="btn-reset" onclick="resetForm()">
+                        🔄 Réinitialiser
+                    </button>
+                </div>
+            </div>
+
+            <div id="results">
+                <h2>📈 Résultats de l'Analyse</h2>
+                
+                <div class="result-grid">
+                    <div class="result-card">
+                        <h3>Score Brut</h3>
+                        <div id="raw-score" class="result-value">-</div>
+                    </div>
+                    <div class="result-card">
+                        <h3>Score Normalisé</h3>
+                        <div id="normalized-score" class="result-value">-</div>
+                        <small id="score-percentage"></small>
+                    </div>
+                    <div class="result-card">
+                        <h3>Cluster</h3>
+                        <div id="cluster" class="result-value">-</div>
+                        <small id="cluster-desc"></small>
+                    </div>
+                    <div class="result-card">
+                        <h3>Niveau de Risque</h3>
+                        <div id="risk-level" class="result-value">-</div>
+                    </div>
+                </div>
+
+                <div class="risk-assessment">
+                    <h3>Visualisation du Risque</h3>
+                    <div class="risk-bar">
+                        <div id="risk-indicator" class="risk-indicator" style="left: 0%;">
+                            <span id="risk-indicator-value">0%</span>
+                        </div>
+                        <div class="threshold-line"></div>
+                        <div class="threshold-label">Seuil (31.84%)</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span style="color: #10b981; font-weight: bold;">Faible Risque</span>
+                        <span style="color: #ef4444; font-weight: bold;">Haut Risque</span>
+                    </div>
+                </div>
+
+                <div id="recommendations" class="info-box" style="margin-top: 20px;">
+                    <h4>💡 Recommandations Cliniques</h4>
+                    <p id="recommendation-text"></p>
+                </div>
+
+                <div class="info-box">
+                    <h4>📊 Détails du Calcul</h4>
+                    <div id="calculation-details"></div>
+                </div>
+
+                <div class="btn-container">
+                    <button onclick="exportResults()" style="background: #059669; color: white;">
+                        📥 Exporter les Résultats (CSV)
+                    </button>
+                    <button onclick="printResults()" style="background: #6366f1; color: white;">
+                        🖨️ Imprimer
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        function calculateIMC() {
-            // Récupération des valeurs
-            const weight = parseFloat(document.getElementById('weight').value);
-            const height = parseFloat(document.getElementById('height').value);
+        // Variables globales
+        let coefficients = {};
+        let scoreRange = { min: -5, max: 5 }; // Valeurs par défaut, seront ajustées
+        let featureTypes = {};
+        let featureDirections = {};
+
+        // Fonction pour charger les coefficients depuis GitHub
+        async function loadCoefficientsFromGitHub() {
+            const loadingDiv = document.getElementById('loading-status');
+            loadingDiv.innerHTML = '<div class="loading">⏳ Chargement des coefficients depuis GitHub...</div>';
             
-            // Validation
-            if (!weight || !height || weight <= 0 || height <= 0) {
-                alert('Veuillez entrer des valeurs valides pour le poids et la taille.');
+            try {
+                // URL du fichier brut sur GitHub
+                const response = await fetch('https://raw.githubusercontent.com/GClerempuy/Scoring_Sespsis/main/Coefficients_clust.csv');
+                
+                if (!response.ok) {
+                    throw new Error('Impossible de charger le fichier depuis GitHub');
+                }
+                
+                const text = await response.text();
+                parseCoefficients(text);
+                
+                loadingDiv.innerHTML = '<div style="color: #059669; padding: 15px;">✅ Coefficients chargés avec succès depuis GitHub!</div>';
+                
+            } catch (error) {
+                loadingDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Erreur lors du chargement: ${error.message}<br>
+                        Veuillez vérifier que le fichier Coefficients_clust.csv est présent dans votre repository.<br>
+                        Utilisation des coefficients d'exemple.
+                    </div>
+                `;
+                
+                // Utiliser des coefficients d'exemple en cas d'erreur
+                loadExampleCoefficients();
+            }
+        }
+
+        // Fonction pour charger les coefficients depuis un fichier local
+        function loadCoefficientsFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                parseCoefficients(e.target.result);
+                document.getElementById('loading-status').innerHTML = 
+                    '<div style="color: #059669; padding: 15px;">✅ Coefficients chargés depuis le fichier local!</div>';
+            };
+            reader.readAsText(file);
+        }
+
+        // Parser les coefficients du CSV
+        function parseCoefficients(csvText) {
+            coefficients = {};
+            featureTypes = {};
+            featureDirections = {};
+            
+            const lines = csvText.trim().split('\n');
+            
+            // Parser chaque ligne (format basé sur votre exemple)
+            for (let i = 0; i < lines.length; i++) {
+                // Skip header si présent
+                if (i === 0 && lines[i].toLowerCase().includes('feature')) continue;
+                
+                // Nettoyer la ligne et diviser par tab ou virgule
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                // Essayer de parser avec différents délimiteurs
+                let parts = line.split('\t');
+                if (parts.length < 2) {
+                    parts = line.split(',');
+                }
+                
+                if (parts.length >= 2) {
+                    const feature = parts[0].trim();
+                    
+                    // Trouver le coefficient (peut être en position 1 ou 2 selon le format)
+                    let coeffValue = null;
+                    for (let j = 1; j < Math.min(3, parts.length); j++) {
+                        const val = parseFloat(parts[j].replace(',', '.'));
+                        if (!isNaN(val)) {
+                            coeffValue = val;
+                            break;
+                        }
+                    }
+                    
+                    if (coeffValue !== null) {
+                        // Déterminer le signe du coefficient
+                        if (parts[1].includes('-')) {
+                            coeffValue = -Math.abs(coeffValue);
+                        }
+                        
+                        coefficients[feature] = coeffValue;
+                        
+                        // Déterminer le type (Gène ou Clinique)
+                        if (parts.length > 2) {
+                            const typeField = parts.find(p => p.includes('Gène') || p.includes('Clinique'));
+                            featureTypes[feature] = typeField && typeField.includes('Clinique') ? 'Clinique' : 'Gène';
+                        } else {
+                            // Deviner basé sur le nom de la feature
+                            featureTypes[feature] = feature.startsWith('ENSG') ? 'Gène' : 'Clinique';
+                        }
+                        
+                        // Déterminer la direction
+                        if (parts.length > 3) {
+                            const directionField = parts.find(p => p.includes('Favorable') || p.includes('Défavorable'));
+                            featureDirections[feature] = directionField || (coeffValue > 0 ? 'Favorable' : 'Défavorable');
+                        } else {
+                            featureDirections[feature] = coeffValue > 0 ? 'Favorable' : 'Défavorable';
+                        }
+                    }
+                }
+            }
+            
+            // Si aucun coefficient n'a été trouvé, utiliser les exemples
+            if (Object.keys(coefficients).length === 0) {
+                loadExampleCoefficients();
+            } else {
+                generateInputs();
+                displayFeatureStatus();
+                document.getElementById('input-section').style.display = 'block';
+                updateScoreRange();
+            }
+        }
+
+        // Charger des coefficients d'exemple basés sur votre fichier
+        function loadExampleCoefficients() {
+            coefficients = {
+                'ENSG00000185022': -2.22491486620172,
+                'ENSG00000075399': -1.378471573853,
+                'ENSG00000175216': 0.679930327513537,
+                'ENSG00000163214': 0.636161018925634,
+                'ENSG00000130803': 0.13051227278668,
+                'I_AGE': -0.0253137625554965,
+                'D1_TAILLE': 0.0227895359912273,
+                'D1_POIDS': -0.0055830212420012
+            };
+            
+            featureTypes = {
+                'ENSG00000185022': 'Gène',
+                'ENSG00000075399': 'Gène',
+                'ENSG00000175216': 'Gène',
+                'ENSG00000163214': 'Gène',
+                'ENSG00000130803': 'Gène',
+                'I_AGE': 'Clinique',
+                'D1_TAILLE': 'Clinique',
+                'D1_POIDS': 'Clinique'
+            };
+            
+            featureDirections = {
+                'ENSG00000185022': 'Défavorable',
+                'ENSG00000075399': 'Défavorable',
+                'ENSG00000175216': 'Favorable',
+                'ENSG00000163214': 'Favorable',
+                'ENSG00000130803': 'Favorable',
+                'I_AGE': 'Défavorable',
+                'D1_TAILLE': 'Favorable',
+                'D1_POIDS': 'Favorable'
+            };
+            
+            generateInputs();
+            displayFeatureStatus();
+            document.getElementById('input-section').style.display = 'block';
+            updateScoreRange();
+        }
+
+        // Mettre à jour la plage de normalisation
+        function updateScoreRange() {
+            // Estimation basée sur les coefficients
+            let maxPossible = 0;
+            let minPossible = 0;
+            
+            for (const coef of Object.values(coefficients)) {
+                if (coef > 0) {
+                    maxPossible += Math.abs(coef) * 100; // Valeur max estimée
+                } else {
+                    minPossible += coef * 100;
+                }
+            }
+            
+            scoreRange = {
+                min: minPossible * 0.1,
+                max: maxPossible * 0.1
+            };
+        }
+
+        // Afficher le statut des features
+        function displayFeatureStatus() {
+            const statusDiv = document.getElementById('feature-status');
+            const contentDiv = document.getElementById('status-content');
+            
+            const geneCount = Object.values(featureTypes).filter(t => t === 'Gène').length;
+            const clinicalCount = Object.values(featureTypes).filter(t => t === 'Clinique').length;
+            
+            contentDiv.innerHTML = `
+                <div class="status-grid">
+                    <div class="status-item status-gene">
+                        🧬 ${geneCount} Variables Génomiques
+                    </div>
+                    <div class="status-item status-clinical">
+                        📊 ${clinicalCount} Variables Cliniques
+                    </div>
+                    <div class="status-item" style="background: #f3f4f6;">
+                        📈 ${Object.keys(coefficients).length} Variables Totales
+                    </div>
+                </div>
+            `;
+            
+            statusDiv.style.display = 'block';
+        }
+
+        // Générer les champs de saisie
+        function generateInputs() {
+            const geneContainer = document.getElementById('gene-inputs');
+            const clinicalContainer = document.getElementById('clinical-inputs');
+            
+            geneContainer.innerHTML = '';
+            clinicalContainer.innerHTML = '';
+            
+            for (const [feature, coefficient] of Object.entries(coefficients)) {
+                const type = featureTypes[feature] || 'Gène';
+                const direction = featureDirections[feature] || 'Neutre';
+                
+                const inputGroup = document.createElement('div');
+                inputGroup.className = type === 'Gène' ? 'input-group gene-input' : 'input-group clinical-input';
+                
+                // Créer un label plus lisible
+                let displayName = feature;
+                if (feature.startsWith('ENSG')) {
+                    displayName = `Gène ${feature}`;
+                } else if (feature === 'I_AGE') {
+                    displayName = 'Âge (années)';
+                } else if (feature === 'D1_TAILLE') {
+                    displayName = 'Taille (cm)';
+                } else if (feature === 'D1_POIDS') {
+                    displayName = 'Poids (kg)';
+                }
+                
+                const coeffClass = coefficient > 0 ? 'coefficient-positive' : 'coefficient-negative';
+                
+                inputGroup.innerHTML = `
+                    <label for="${feature}">
+                        ${displayName}
+                        <span class="coefficient-display ${coeffClass}">
+                            ${coefficient > 0 ? '+' : ''}${coefficient.toFixed(4)}
+                        </span>
+                    </label>
+                    <input type="number" id="${feature}" placeholder="Valeur" step="0.01">
+                    <small>
+                        ${direction} | ${type}
+                    </small>
+                `;
+                
+                if (type === 'Gène') {
+                    geneContainer.appendChild(inputGroup);
+                } else {
+                    clinicalContainer.appendChild(inputGroup);
+                }
+            }
+        }
+
+        // Charger des données d'exemple
+        function loadExampleData() {
+            document.getElementById('patient-id').value = 'PAT001';
+            
+            // Valeurs d'exemple pour les features
+            const exampleValues = {
+                'ENSG00000185022': 0.5,
+                'ENSG00000075399': 0.3,
+                'ENSG00000175216': 0.8,
+                'ENSG00000163214': 0.6,
+                'ENSG00000130803': 0.4,
+                'I_AGE': 65,
+                'D1_TAILLE': 175,
+                'D1_POIDS': 80
+            };
+            
+            for (const [feature, value] of Object.entries(exampleValues)) {
+                const input = document.getElementById(feature);
+                if (input) {
+                    input.value = value;
+                }
+            }
+        }
+
+        // Calculer le score
+        function calculateScore() {
+            const values = {};
+            let allFilled = true;
+            const missingFields = [];
+            
+            for (const feature of Object.keys(coefficients)) {
+                const input = document.getElementById(feature);
+                if (input && input.value !== '') {
+                    values[feature] = parseFloat(input.value);
+                } else {
+                    allFilled = false;
+                    missingFields.push(feature);
+                }
+            }
+            
+            if (!allFilled) {
+                alert(`Veuillez remplir toutes les valeurs.\nChamps manquants: ${missingFields.join(', ')}`);
                 return;
             }
             
-            // Conversion de la taille en mètres
-            const heightInMeters = height / 100;
+            // Calcul du score brut
+            let rawScore = 0;
+            const calculationDetails = [];
             
-            // Calcul de l'IMC
-            const imc = weight / (heightInMeters * heightInMeters);
-            
-            // Affichage du résultat
-            const resultDiv = document.getElementById('result');
-            const imcValueDiv = document.getElementById('imc-value');
-            const imcCategoryDiv = document.getElementById('imc-category');
-            const imcDescriptionDiv = document.getElementById('imc-description');
-            
-            resultDiv.style.display = 'block';
-            imcValueDiv.textContent = imc.toFixed(1);
-            
-            // Détermination de la catégorie
-            let category, description, className;
-            
-            if (imc < 18.5) {
-                category = "Insuffisance pondérale";
-                description = "Votre IMC indique que vous êtes en insuffisance pondérale. Il pourrait être bénéfique de consulter un professionnel de santé.";
-                className = "underweight";
-            } else if (imc < 25) {
-                category = "Poids normal";
-                description = "Félicitations ! Votre IMC se situe dans la plage normale. Continuez à maintenir un mode de vie sain.";
-                className = "normal";
-            } else if (imc < 30) {
-                category = "Surpoids";
-                description = "Votre IMC indique un surpoids. Une alimentation équilibrée et de l'exercice régulier peuvent vous aider.";
-                className = "overweight";
-            } else {
-                category = "Obésité";
-                description = "Votre IMC indique une obésité. Il est recommandé de consulter un professionnel de santé pour un accompagnement personnalisé.";
-                className = "obese";
+            for (const [feature, value] of Object.entries(values)) {
+                const contribution = value * coefficients[feature];
+                rawScore += contribution;
+                calculationDetails.push({
+                    feature: feature,
+                    value: value,
+                    coefficient: coefficients[feature],
+                    contribution: contribution,
+                    type: featureTypes[feature]
+                });
             }
             
-            imcCategoryDiv.textContent = category;
-            imcCategoryDiv.className = className;
-            imcDescriptionDiv.textContent = description;
+            // Normalisation du score (entre 0 et 1)
+            const normalizedScore = (rawScore - scoreRange.min) / (scoreRange.max - scoreRange.min);
+            const clampedScore = Math.max(0, Math.min(1, normalizedScore));
             
-            // Animation du résultat
-            resultDiv.style.animation = 'slideIn 0.5s';
+            // Détermination du cluster basé sur le seuil de 31.84%
+            const threshold = 0.3184;
+            const cluster = clampedScore < threshold ? 1 : 2;
+            
+            // Affichage des résultats
+            displayResults(rawScore, clampedScore, cluster, calculationDetails);
         }
-        
-        // Permettre le calcul avec la touche Entrée
-        document.getElementById('weight').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') calculateIMC();
-        });
-        
-        document.getElementById('height').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') calculateIMC();
+
+        // Afficher les résultats
+        function displayResults(rawScore, normalizedScore, cluster, details) {
+            document.getElementById('results').style.display = 'block';
+            
+            // Scores
+            document.getElementById('raw-score').textContent = rawScore.toFixed(4);
+            document.getElementById('normalized-score').textContent = normalizedScore.toFixed(4);
+            document.getElementById('score-percentage').textContent = `(${(normalizedScore * 100).toFixed(2)}%)`;
+            
+            // Cluster
+            const clusterElement = document.getElementById('cluster');
+            clusterElement.textContent = cluster;
+            clusterElement.className = `result-value cluster-${cluster}`;
+            
+            document.getElementById('cluster-desc').textContent = 
+                cluster === 1 ? 'Faible risque' : 'Haut risque';
+            
+            // Niveau de risque
+            const riskLevel = document.getElementById('risk-level');
+            if (normalizedScore < 0.3184) {
+                riskLevel.textContent = 'Faible';
+                riskLevel.style.color = '#10b981';
+            } else if (normalizedScore < 0.6) {
+                riskLevel.textContent = 'Modéré';
+                riskLevel.style.color = '#fbbf24';
+            } else {
+                riskLevel.textContent = 'Élevé';
+                riskLevel.style.color = '#ef4444';
+            }
+            
+            // Indicateur visuel
+            const indicator = document.getElementById('risk-indicator');
+            indicator.style.left = `${normalizedScore * 100}%`;
+            document.getElementById('risk-indicator-value').textContent = 
+                `${(normalizedScore * 100).toFixed(1)}%`;
+            
+            // Recommandations
+            let recommendations = '';
+            if (cluster === 1) {
+                recommendations = `
+                    Patient classé dans le groupe à faible risque (Cluster 1). 
+                    Surveillance standard recommandée avec réévaluation périodique. 
+                    Le score normalisé de ${(normalizedScore * 100).toFixed(1)}% est inférieur au seuil critique de 31.84%.
+                    Pronostic de survie à J90 favorable selon le modèle.
+                `;
+            } else {
+                recommendations = `
+                    Patient classé dans le groupe à haut risque (Cluster 2). 
+                    Surveillance intensive recommandée avec prise en charge thérapeutique agressive. 
+                    Le score normalisé de ${(normalizedScore * 100).toFixed(1)}% dépasse le seuil critique de 31.84%.
+                    Risque accru de mortalité à J90 - considérer l'escalade thérapeutique.
+                `;
+            }
+            document.getElementById('recommendation-text').textContent = recommendations;
+            
+            // Détails du calcul
+            let detailsHtml = '<table>';
+            detailsHtml += '<tr><th>Variable</th><th>Type</th><th>Valeur</th><th>Coefficient</th><th>Contribution</th></tr>';
+            
+            // Trier par contribution absolue
+            details.sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution));
+            
+            for (const detail of details) {
+                const contribClass = detail.contribution > 0 ? 'coefficient-positive' : 'coefficient-negative';
+                const typeClass = detail.type === 'Gène' ? 'status-gene' : 'status-clinical';
+                
+                // Formater le nom de la variable
+                let displayName = detail.feature;
+                if (detail.feature.startsWith('ENSG')) {
+                    displayName = `Gène ${detail.feature}`;
+                } else if (detail.feature === 'I_AGE') {
+                    displayName = 'Âge';
+                } else if (detail.feature === 'D1_TAILLE') {
+                    displayName = 'Taille';
+                } else if (detail.feature === 'D1_POIDS') {
+                    displayName = 'Poids';
+                }
+                
+                detailsHtml += `
+                    <tr>
+                        <td>${displayName}</td>
+                        <td><span class="${typeClass}" style="padding: 2px 8px; border-radius: 3px;">${detail.type}</span></td>
+                        <td>${detail.value.toFixed(2)}</td>
+                        <td>${detail.coefficient.toFixed(4)}</td>
+                        <td class="${contribClass}">${detail.contribution > 0 ? '+' : ''}${detail.contribution.toFixed(4)}</td>
+                    </tr>
+                `;
+            }
+            detailsHtml += '</table>';
+            document.getElementById('calculation-details').innerHTML = detailsHtml;
+            
+            // Scroll vers les résultats
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Export des résultats
+        function exportResults() {
+            const patientId = document.getElementById('patient-id').value || 'Unknown';
+            const rawScore = document.getElementById('raw-score').textContent;
+            const normalizedScore = document.getElementById('normalized-score').textContent;
+            const cluster = document.getElementById('cluster').textContent;
+            
+            // Création du CSV
+            let csv = 'Patient_ID,';
+            csv += Object.keys(coefficients).join(',');
+            csv += ',Score_Raw,Score,Cluster\n';
+            
+            csv += `${patientId},`;
+            for (const feature of Object.keys(coefficients)) {
+                const input = document.getElementById(feature);
+                csv += `${input ? input.value : ''},`;
+            }
+            csv += `${rawScore},${normalizedScore},${cluster}`;
+            
+            // Téléchargement
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sepsis_score_${patientId}_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        // Impression
+        function printResults() {
+            window.print();
+        }
+
+        // Réinitialisation
+        function resetForm() {
+            document.getElementById('patient-id').value = '';
+            
+            for (const feature of Object.keys(coefficients)) {
+                const input = document.getElementById(feature);
+                if (input) input.value = '';
+            }
+            
+            document.getElementById('results').style.display = 'none';
+        }
+
+        // Chargement automatique au démarrage
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tentative de chargement automatique depuis GitHub
+            loadCoefficientsFromGitHub();
         });
     </script>
-    
-    <style>
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
 </body>
 </html>
