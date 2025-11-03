@@ -1,6 +1,6 @@
-"Feature","Coefficient","Type","Abs_Coefficient"
-"ENSG00000134014",0.488,"Selected",0.488
-"ENSG00000137802",0.3306,"Selected",0.3306
-"ENSG00000155229",0.3273,"Selected",0.3273
-"ENSG00000175216",0.241,"Selected",0.241
-"I_AGE",-0.0123,"Selected",0.0123
+"Feature","Coefficient","Abs_Coefficient","Type","Effect_Type","Pvalue","Significant"
+"ENSG00000134014",0.488,0.488,"Selected","Favorable","","significatif"
+"ENSG00000137802",0.3306,0.3306,"Selected","Favorable","","significatif"
+"ENSG00000155229",0.3273,0.3273,"Selected","Favorable","","significatif"
+"ENSG00000175216",0.241,0.241,"Selected","Favorable","","significatif"
+"I_AGE",-0.0123,0.0123,"Selected","Défavorable","","significatif"
