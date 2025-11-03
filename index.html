@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur d'IMC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: scale(1.02);
+        }
+        
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        #imc-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+        
+        #imc-category {
+            font-size: 20px;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .underweight {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .normal {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .overweight {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .obese {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Calculateur d'IMC</h1>
+        
+        <div class="input-group">
+            <label for="weight">Poids (kg) :</label>
+            <input type="number" id="weight" placeholder="Ex: 70" step="0.1" min="1">
+        </div>
+        
+        <div class="input-group">
+            <label for="height">Taille (cm) :</label>
+            <input type="number" id="height" placeholder="Ex: 175" step="1" min="1">
+        </div>
+        
+        <button onclick="calculateIMC()">Calculer mon IMC</button>
+        
+        <div id="result">
+            <div id="imc-value"></div>
+            <div id="imc-category"></div>
+            <div id="imc-description"></div>
+        </div>
+        
+        <div class="info">
+            <strong>Comment interpréter l'IMC ?</strong><br>
+            • Moins de 18,5 : Insuffisance pondérale<br>
+            • 18,5 à 24,9 : Poids normal<br>
+            • 25 à 29,9 : Surpoids<br>
+            • 30 et plus : Obésité<br><br>
+            <small>⚠️ L'IMC est un indicateur général qui ne prend pas en compte la masse musculaire, l'âge ou le sexe.</small>
+        </div>
+    </div>
+
+    <script>
+        function calculateIMC() {
+            // Récupération des valeurs
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            
+            // Validation
+            if (!weight || !height || weight <= 0 || height <= 0) {
+                alert('Veuillez entrer des valeurs valides pour le poids et la taille.');
+                return;
+            }
+            
+            // Conversion de la taille en mètres
+            const heightInMeters = height / 100;
+            
+            // Calcul de l'IMC
+            const imc = weight / (heightInMeters * heightInMeters);
+            
+            // Affichage du résultat
+            const resultDiv = document.getElementById('result');
+            const imcValueDiv = document.getElementById('imc-value');
+            const imcCategoryDiv = document.getElementById('imc-category');
+            const imcDescriptionDiv = document.getElementById('imc-description');
+            
+            resultDiv.style.display = 'block';
+            imcValueDiv.textContent = imc.toFixed(1);
+            
+            // Détermination de la catégorie
+            let category, description, className;
+            
+            if (imc < 18.5) {
+                category = "Insuffisance pondérale";
+                description = "Votre IMC indique que vous êtes en insuffisance pondérale. Il pourrait être bénéfique de consulter un professionnel de santé.";
+                className = "underweight";
+            } else if (imc < 25) {
+                category = "Poids normal";
+                description = "Félicitations ! Votre IMC se situe dans la plage normale. Continuez à maintenir un mode de vie sain.";
+                className = "normal";
+            } else if (imc < 30) {
+                category = "Surpoids";
+                description = "Votre IMC indique un surpoids. Une alimentation équilibrée et de l'exercice régulier peuvent vous aider.";
+                className = "overweight";
+            } else {
+                category = "Obésité";
+                description = "Votre IMC indique une obésité. Il est recommandé de consulter un professionnel de santé pour un accompagnement personnalisé.";
+                className = "obese";
+            }
+            
+            imcCategoryDiv.textContent = category;
+            imcCategoryDiv.className = className;
+            imcDescriptionDiv.textContent = description;
+            
+            // Animation du résultat
+            resultDiv.style.animation = 'slideIn 0.5s';
+        }
+        
+        // Permettre le calcul avec la touche Entrée
+        document.getElementById('weight').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateIMC();
+        });
+        
+        document.getElementById('height').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateIMC();
+        });
+    </script>
+    
+    <style>
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</body>
+</html>
