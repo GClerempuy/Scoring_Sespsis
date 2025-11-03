@@ -83,6 +83,10 @@ Contient :
 
 ## 📊 Utilisation du Script
 
+### Lien pour la version en ligne
+
+https://gclerempuy.github.io/Scoring_Sespsis/
+
 ### Syntaxe de Base
 ```bash
 Rscript Scoring_UVSQ_cluster.R -i Data_metadata.csv -c Coefficients_clust.csv -o TEST_clust_scoring.csv
