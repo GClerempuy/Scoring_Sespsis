@@ -176,4 +176,3 @@ Ce projet est développé dans un cadre de recherche médicale. L'utilisation es
 
 ---
 
-*Dernière mise à jour : Documentation générée pour le script Scoring_UVSQ_cluster.R*
