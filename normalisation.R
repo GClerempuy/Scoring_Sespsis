@@ -1,10 +1,6 @@
 # ============================================================================
 # NORMALISATION DES SCORES DE PRÉDICTION
 # ============================================================================
-# Script: normalisation.R
-# Projet: Scoring_Sepsis
-# Auteur: GClerempuy
-# ============================================================================
 
 # Fonction: Normalisation d'un score brut ----------------------------------
 
@@ -55,7 +51,3 @@ normaliser_score <- function(score_brut, bornes_intervalles, seuil_optimal) {
   
   return(proba_normalisee)
 }
-
-# ============================================================================
-# FIN DU SCRIPT
-# ============================================================================
