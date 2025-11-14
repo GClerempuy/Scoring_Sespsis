@@ -468,7 +468,12 @@
                         <div id="raw-score" class="result-value">-</div>
                     </div>
                     <div class="result-card">
-                        <h3>Score Normalisé</h3>
+                        <h3>Probabilité Brute</h3>
+                        <div id="raw-probability" class="result-value">-</div>
+                        <small id="prob-percentage"></small>
+                    </div>
+                    <div class="result-card">
+                        <h3>Probabilité Normalisée</h3>
                         <div id="normalized-score" class="result-value">-</div>
                         <small id="score-percentage"></small>
                     </div>
@@ -490,7 +495,7 @@
                             <span id="risk-indicator-value">0%</span>
                         </div>
                         <div class="threshold-line"></div>
-                        <div class="threshold-label">Seuil (31.84%)</div>
+                        <div class="threshold-label">Seuil (50%)</div>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-top: 10px;">
                         <span style="color: #10b981; font-weight: bold;">Faible Risque</span>
@@ -523,9 +528,75 @@
     <script>
         // Variables globales
         let coefficients = {};
-        let scoreRange = { min: -5, max: 5 }; // Valeurs par défaut, seront ajustées
         let featureTypes = {};
         let featureDirections = {};
+        
+        // Paramètres de normalisation (issus du script R normalisation.R)
+        const normalizationParams = {
+            seuilOptimal: 0.5,  // Seuil optimal pour séparer les deux intervalles
+            bornesIntervalles: {
+                borne_min_bas: 0.0,    // Borne minimale de l'intervalle bas
+                borne_max_bas: 0.5,    // Borne maximale de l'intervalle bas
+                borne_min_haut: 0.5,   // Borne minimale de l'intervalle haut
+                borne_max_haut: 1.0    // Borne maximale de l'intervalle haut
+            }
+        };
+
+        // ============================================================================
+        // FONCTION DE NORMALISATION (traduite depuis normalisation.R)
+        // ============================================================================
+        function normaliserScore(scoreBrut, bornesIntervalles, seuilOptimal) {
+            // Transformation du score brut en probabilité (fonction logistique)
+            const proba = 1 / (1 + Math.exp(-scoreBrut));
+            
+            let probaNormalisee;
+            
+            // Détermination de l'intervalle basé sur la probabilité
+            if (proba < seuilOptimal) {
+                // Intervalle bas [0, 0.5[
+                const minIntervalle = bornesIntervalles.borne_min_bas;
+                const maxIntervalle = bornesIntervalles.borne_max_bas;
+                
+                // Vérification que les bornes existent
+                if (isNaN(minIntervalle) || isNaN(maxIntervalle)) {
+                    console.warn("Bornes de l'intervalle bas non disponibles");
+                    return null;
+                }
+                
+                // Normalisation dans [0, 0.5[
+                if (maxIntervalle === minIntervalle) {
+                    probaNormalisee = 0.25;  // Valeur médiane si pas de variation
+                } else {
+                    probaNormalisee = ((proba - minIntervalle) / (maxIntervalle - minIntervalle)) * 0.5;
+                }
+                
+            } else {
+                // Intervalle haut [0.5, 1]
+                const minIntervalle = bornesIntervalles.borne_min_haut;
+                const maxIntervalle = bornesIntervalles.borne_max_haut;
+                
+                // Vérification que les bornes existent
+                if (isNaN(minIntervalle) || isNaN(maxIntervalle)) {
+                    console.warn("Bornes de l'intervalle haut non disponibles");
+                    return null;
+                }
+                
+                // Normalisation dans [0.5, 1]
+                if (maxIntervalle === minIntervalle) {
+                    probaNormalisee = 0.75;  // Valeur médiane si pas de variation
+                } else {
+                    probaNormalisee = 0.5 + ((proba - minIntervalle) / (maxIntervalle - minIntervalle)) * 0.5;
+                }
+            }
+            
+            // S'assurer que la valeur reste dans [0, 1]
+            probaNormalisee = Math.max(0, Math.min(1, probaNormalisee));
+            
+            return {
+                probabiliteBrute: proba,
+                probabiliteNormalisee: probaNormalisee
+            };
+        }
 
         // Fonction pour charger les coefficients depuis GitHub
         async function loadCoefficientsFromGitHub() {
@@ -533,7 +604,6 @@
             loadingDiv.innerHTML = '<div class="loading">⏳ Chargement des coefficients depuis GitHub...</div>';
             
             try {
-                // URL du fichier brut sur GitHub
                 const response = await fetch('https://raw.githubusercontent.com/GClerempuy/Scoring_Sespsis/main/Coefficients_clust.csv');
                 
                 if (!response.ok) {
@@ -554,7 +624,6 @@
                     </div>
                 `;
                 
-                // Utiliser des coefficients d'exemple en cas d'erreur
                 loadExampleCoefficients();
             }
         }
@@ -581,28 +650,21 @@
             
             const lines = csvText.trim().split('\n');
             
-            // Parser chaque ligne
             for (let i = 0; i < lines.length; i++) {
-                // Skip header si présent
                 if (i === 0 && lines[i].toLowerCase().includes('feature')) continue;
                 
                 const line = lines[i].trim();
                 if (!line) continue;
                 
-                // Parser CSV avec gestion des guillemets
                 const parts = parseCSVLine(line);
                 
                 if (parts.length >= 2) {
-                    // Nettoyer les guillemets de la feature
                     const feature = parts[0].replace(/^["']|["']$/g, '').trim();
-                    
-                    // Parser le coefficient
                     const coeffValue = parseFloat(parts[1].replace(/^["']|["']$/g, '').replace(',', '.'));
                     
                     if (!isNaN(coeffValue) && feature) {
                         coefficients[feature] = coeffValue;
                         
-                        // Déterminer le type (colonne 3)
                         if (parts.length > 3) {
                             const typeField = parts[3].replace(/^["']|["']$/g, '').trim();
                             featureTypes[feature] = typeField;
@@ -610,7 +672,6 @@
                             featureTypes[feature] = feature.startsWith('ENSG') ? 'Gène' : 'Clinique';
                         }
                         
-                        // Déterminer la direction (colonne 4)
                         if (parts.length > 4) {
                             const directionField = parts[4].replace(/^["']|["']$/g, '').trim();
                             featureDirections[feature] = directionField;
@@ -624,7 +685,6 @@
             console.log('Coefficients chargés:', coefficients);
             console.log('Types:', featureTypes);
             
-            // Si aucun coefficient n'a été trouvé, utiliser les exemples
             if (Object.keys(coefficients).length === 0) {
                 alert('Aucun coefficient trouvé dans le fichier. Utilisation des coefficients d\'exemple.');
                 loadExampleCoefficients();
@@ -632,11 +692,9 @@
                 generateInputs();
                 displayFeatureStatus();
                 document.getElementById('input-section').style.display = 'block';
-                updateScoreRange();
             }
         }
         
-        // Fonction helper pour parser une ligne CSV avec guillemets
         function parseCSVLine(line) {
             const result = [];
             let current = '';
@@ -662,68 +720,36 @@
             return result;
         }
 
-        // Charger des coefficients d'exemple basés sur votre fichier
         function loadExampleCoefficients() {
             coefficients = {
-                'ENSG00000185022': -2.22491486620172,
-                'ENSG00000075399': -1.378471573853,
-                'ENSG00000175216': 0.679930327513537,
-                'ENSG00000163214': 0.636161018925634,
-                'ENSG00000130803': 0.13051227278668,
-                'I_AGE': -0.0253137625554965,
-                'D1_TAILLE': 0.0227895359912273,
-                'D1_POIDS': -0.0055830212420012
+                'ENSG00000134014': 0.488,
+                'ENSG00000137802': 0.3306,
+                'ENSG00000155229': 0.3273,
+                'ENSG00000175216': 0.241,
+                'I_AGE': -0.0123
             };
             
             featureTypes = {
-                'ENSG00000185022': 'Gène',
-                'ENSG00000075399': 'Gène',
+                'ENSG00000134014': 'Gène',
+                'ENSG00000137802': 'Gène',
+                'ENSG00000155229': 'Gène',
                 'ENSG00000175216': 'Gène',
-                'ENSG00000163214': 'Gène',
-                'ENSG00000130803': 'Gène',
-                'I_AGE': 'Clinique',
-                'D1_TAILLE': 'Clinique',
-                'D1_POIDS': 'Clinique'
+                'I_AGE': 'Clinique'
             };
             
             featureDirections = {
-                'ENSG00000185022': 'Défavorable',
-                'ENSG00000075399': 'Défavorable',
+                'ENSG00000134014': 'Favorable',
+                'ENSG00000137802': 'Favorable',
+                'ENSG00000155229': 'Favorable',
                 'ENSG00000175216': 'Favorable',
-                'ENSG00000163214': 'Favorable',
-                'ENSG00000130803': 'Favorable',
-                'I_AGE': 'Défavorable',
-                'D1_TAILLE': 'Favorable',
-                'D1_POIDS': 'Favorable'
+                'I_AGE': 'Défavorable'
             };
             
             generateInputs();
             displayFeatureStatus();
             document.getElementById('input-section').style.display = 'block';
-            updateScoreRange();
         }
 
-        // Mettre à jour la plage de normalisation
-        function updateScoreRange() {
-            // Estimation basée sur les coefficients
-            let maxPossible = 0;
-            let minPossible = 0;
-            
-            for (const coef of Object.values(coefficients)) {
-                if (coef > 0) {
-                    maxPossible += Math.abs(coef) * 100; // Valeur max estimée
-                } else {
-                    minPossible += coef * 100;
-                }
-            }
-            
-            scoreRange = {
-                min: minPossible * 0.1,
-                max: maxPossible * 0.1
-            };
-        }
-
-        // Afficher le statut des features
         function displayFeatureStatus() {
             const statusDiv = document.getElementById('feature-status');
             const contentDiv = document.getElementById('status-content');
@@ -748,7 +774,6 @@
             statusDiv.style.display = 'block';
         }
 
-        // Générer les champs de saisie
         function generateInputs() {
             const geneContainer = document.getElementById('gene-inputs');
             const clinicalContainer = document.getElementById('clinical-inputs');
@@ -763,10 +788,8 @@
                 const inputGroup = document.createElement('div');
                 inputGroup.className = type === 'Gène' ? 'input-group gene-input' : 'input-group clinical-input';
                 
-                // Créer un ID valide pour HTML (remplacer les caractères problématiques)
                 const safeId = 'input_' + feature.replace(/[^a-zA-Z0-9_]/g, '_');
                 
-                // Créer un label plus lisible
                 let displayName = feature;
                 if (feature.startsWith('ENSG')) {
                     displayName = `Gène ${feature}`;
@@ -801,20 +824,17 @@
             }
         }
 
-        // Charger des données d'exemple
         function loadExampleData() {
             document.getElementById('patient-id').value = 'PAT001';
             
-            // Valeurs d'exemple adaptées aux nouvelles features
             const exampleValues = {
-                'ENSG00000134014': 1.2,
-                'ENSG00000137802': 0.8,
-                'ENSG00000155229': 1.5,
-                'ENSG00000175216': 2.1,
+                'ENSG00000134014': 8.5,
+                'ENSG00000137802': 7.2,
+                'ENSG00000155229': 6.8,
+                'ENSG00000175216': 9.1,
                 'I_AGE': 65
             };
             
-            // Remplir les inputs en utilisant l'attribut data-feature
             for (const [feature, value] of Object.entries(exampleValues)) {
                 const input = document.querySelector(`input[data-feature="${feature}"]`);
                 if (input) {
@@ -823,13 +843,11 @@
             }
         }
 
-        // Calculer le score
         function calculateScore() {
             const values = {};
             let allFilled = true;
             const missingFields = [];
             
-            // Récupérer toutes les valeurs en utilisant data-feature
             for (const feature of Object.keys(coefficients)) {
                 const input = document.querySelector(`input[data-feature="${feature}"]`);
                 if (input && input.value !== '') {
@@ -861,26 +879,37 @@
                 });
             }
             
-            // Normalisation du score (entre 0 et 1)
-            const normalizedScore = (rawScore - scoreRange.min) / (scoreRange.max - scoreRange.min);
-            const clampedScore = Math.max(0, Math.min(1, normalizedScore));
+            // APPLICATION DE LA NORMALISATION (fonction R)
+            const normalizationResult = normaliserScore(
+                rawScore, 
+                normalizationParams.bornesIntervalles, 
+                normalizationParams.seuilOptimal
+            );
             
-            // Détermination du cluster basé sur le seuil de 31.84%
-            const threshold = 0.3184;
-            const cluster = clampedScore < threshold ? 1 : 2;
+            if (!normalizationResult) {
+                alert('Erreur lors de la normalisation du score');
+                return;
+            }
+            
+            const probabiliteBrute = normalizationResult.probabiliteBrute;
+            const probabiliteNormalisee = normalizationResult.probabiliteNormalisee;
+            
+            // Détermination du cluster basé sur le seuil de 50%
+            const cluster = probabiliteNormalisee < 0.5 ? 1 : 2;
             
             // Affichage des résultats
-            displayResults(rawScore, clampedScore, cluster, calculationDetails);
+            displayResults(rawScore, probabiliteBrute, probabiliteNormalisee, cluster, calculationDetails);
         }
 
-        // Afficher les résultats
-        function displayResults(rawScore, normalizedScore, cluster, details) {
+        function displayResults(rawScore, probabiliteBrute, probabiliteNormalisee, cluster, details) {
             document.getElementById('results').style.display = 'block';
             
             // Scores
             document.getElementById('raw-score').textContent = rawScore.toFixed(4);
-            document.getElementById('normalized-score').textContent = normalizedScore.toFixed(4);
-            document.getElementById('score-percentage').textContent = `(${(normalizedScore * 100).toFixed(2)}%)`;
+            document.getElementById('raw-probability').textContent = probabiliteBrute.toFixed(4);
+            document.getElementById('prob-percentage').textContent = `(${(probabiliteBrute * 100).toFixed(2)}%)`;
+            document.getElementById('normalized-score').textContent = probabiliteNormalisee.toFixed(4);
+            document.getElementById('score-percentage').textContent = `(${(probabiliteNormalisee * 100).toFixed(2)}%)`;
             
             // Cluster
             const clusterElement = document.getElementById('cluster');
@@ -892,10 +921,10 @@
             
             // Niveau de risque
             const riskLevel = document.getElementById('risk-level');
-            if (normalizedScore < 0.3184) {
+            if (probabiliteNormalisee < 0.5) {
                 riskLevel.textContent = 'Faible';
                 riskLevel.style.color = '#10b981';
-            } else if (normalizedScore < 0.6) {
+            } else if (probabiliteNormalisee < 0.75) {
                 riskLevel.textContent = 'Modéré';
                 riskLevel.style.color = '#fbbf24';
             } else {
@@ -905,9 +934,9 @@
             
             // Indicateur visuel
             const indicator = document.getElementById('risk-indicator');
-            indicator.style.left = `${normalizedScore * 100}%`;
+            indicator.style.left = `${probabiliteNormalisee * 100}%`;
             document.getElementById('risk-indicator-value').textContent = 
-                `${(normalizedScore * 100).toFixed(1)}%`;
+                `${(probabiliteNormalisee * 100).toFixed(1)}%`;
             
             // Recommandations
             let recommendations = '';
@@ -915,14 +944,14 @@
                 recommendations = `
                     Patient classé dans le groupe à faible risque (Cluster 1). 
                     Surveillance standard recommandée avec réévaluation périodique. 
-                    Le score normalisé de ${(normalizedScore * 100).toFixed(1)}% est inférieur au seuil critique de 31.84%.
+                    La probabilité normalisée de ${(probabiliteNormalisee * 100).toFixed(1)}% est inférieure au seuil critique de 50%.
                     Pronostic de survie à J90 favorable selon le modèle.
                 `;
             } else {
                 recommendations = `
                     Patient classé dans le groupe à haut risque (Cluster 2). 
                     Surveillance intensive recommandée avec prise en charge thérapeutique agressive. 
-                    Le score normalisé de ${(normalizedScore * 100).toFixed(1)}% dépasse le seuil critique de 31.84%.
+                    La probabilité normalisée de ${(probabiliteNormalisee * 100).toFixed(1)}% dépasse le seuil critique de 50%.
                     Risque accru de mortalité à J90 - considérer l'escalade thérapeutique.
                 `;
             }
@@ -932,14 +961,12 @@
             let detailsHtml = '<table>';
             detailsHtml += '<tr><th>Variable</th><th>Type</th><th>Valeur</th><th>Coefficient</th><th>Contribution</th></tr>';
             
-            // Trier par contribution absolue
             details.sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution));
             
             for (const detail of details) {
                 const contribClass = detail.contribution > 0 ? 'coefficient-positive' : 'coefficient-negative';
                 const typeClass = detail.type === 'Gène' ? 'status-gene' : 'status-clinical';
                 
-                // Formater le nom de la variable
                 let displayName = detail.feature;
                 if (detail.feature.startsWith('ENSG')) {
                     displayName = `Gène ${detail.feature}`;
@@ -962,32 +989,41 @@
                 `;
             }
             detailsHtml += '</table>';
+            
+            detailsHtml += `
+                <div style="margin-top: 20px; padding: 15px; background: #f9fafb; border-radius: 5px;">
+                    <h4 style="margin-bottom: 10px;">🔬 Détails de la normalisation</h4>
+                    <p><strong>Score brut:</strong> ${rawScore.toFixed(4)}</p>
+                    <p><strong>Probabilité brute (logistique):</strong> ${probabiliteBrute.toFixed(4)} (${(probabiliteBrute * 100).toFixed(2)}%)</p>
+                    <p><strong>Probabilité normalisée:</strong> ${probabiliteNormalisee.toFixed(4)} (${(probabiliteNormalisee * 100).toFixed(2)}%)</p>
+                    <p><strong>Méthode:</strong> Normalisation par intervalles selon script normalisation.R</p>
+                    <p><strong>Seuil optimal:</strong> ${normalizationParams.seuilOptimal}</p>
+                </div>
+            `;
+            
             document.getElementById('calculation-details').innerHTML = detailsHtml;
             
-            // Scroll vers les résultats
             document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Export des résultats
         function exportResults() {
             const patientId = document.getElementById('patient-id').value || 'Unknown';
             const rawScore = document.getElementById('raw-score').textContent;
+            const rawProb = document.getElementById('raw-probability').textContent;
             const normalizedScore = document.getElementById('normalized-score').textContent;
             const cluster = document.getElementById('cluster').textContent;
             
-            // Création du CSV
             let csv = 'Patient_ID,';
             csv += Object.keys(coefficients).join(',');
-            csv += ',Score_Raw,Score,Cluster\n';
+            csv += ',Score_Raw,Probability_Raw,Probability_Normalized,Cluster\n';
             
             csv += `${patientId},`;
             for (const feature of Object.keys(coefficients)) {
                 const input = document.querySelector(`input[data-feature="${feature}"]`);
                 csv += `${input ? input.value : ''},`;
             }
-            csv += `${rawScore},${normalizedScore},${cluster}`;
+            csv += `${rawScore},${rawProb},${normalizedScore},${cluster}`;
             
-            // Téléchargement
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -996,16 +1032,13 @@
             a.click();
         }
 
-        // Impression
         function printResults() {
             window.print();
         }
 
-        // Réinitialisation
         function resetForm() {
             document.getElementById('patient-id').value = '';
             
-            // Réinitialiser tous les inputs en utilisant data-feature
             for (const feature of Object.keys(coefficients)) {
                 const input = document.querySelector(`input[data-feature="${feature}"]`);
                 if (input) input.value = '';
@@ -1014,9 +1047,7 @@
             document.getElementById('results').style.display = 'none';
         }
 
-        // Chargement automatique au démarrage
         document.addEventListener('DOMContentLoaded', function() {
-            // Tentative de chargement automatique depuis GitHub
             loadCoefficientsFromGitHub();
         });
     </script>
