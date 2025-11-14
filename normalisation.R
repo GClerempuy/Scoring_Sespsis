@@ -4,6 +4,18 @@
 
 # Fonction: Normalisation d'un score brut ----------------------------------
 
+bornes_intervalles <- list(
+  borne_min_bas = 0.390448,
+  borne_max_bas = 0.4563763,
+  borne_min_haut = 0.4737034,
+  borne_max_haut = 0.9766953,
+  n_patients_bas = 8,
+  n_patients_haut = 71,
+  seuil_utilise = 0.4652812
+)
+
+seuil_optimal <- 0.4652812
+
 normaliser_score <- function(score_brut, bornes_intervalles, seuil_optimal) {
   # Transformation du score brut en probabilité
   proba <- 1 / (1 + exp(-score_brut))
