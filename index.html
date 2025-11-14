@@ -277,14 +277,14 @@
             width: 2px;
             height: 50px;
             background: #1f2937;
-            left: 31.84%;
+            left: 50%;
             transform: translateX(-50%);
         }
 
         .threshold-label {
             position: absolute;
             top: 50px;
-            left: 31.84%;
+            left: 50%;
             transform: translateX(-50%);
             font-size: 0.85em;
             font-weight: bold;
@@ -533,12 +533,15 @@
         
         // Paramètres de normalisation (issus du script R normalisation.R)
         const normalizationParams = {
-            seuilOptimal: 0.5,  // Seuil optimal pour séparer les deux intervalles
+            seuilOptimal: 0.4652812,  // Seuil optimal pour séparer les deux intervalles
             bornesIntervalles: {
-                borne_min_bas: 0.0,    // Borne minimale de l'intervalle bas
-                borne_max_bas: 0.5,    // Borne maximale de l'intervalle bas
-                borne_min_haut: 0.5,   // Borne minimale de l'intervalle haut
-                borne_max_haut: 1.0    // Borne maximale de l'intervalle haut
+                borne_min_bas: 0.390448,    // Borne minimale de l'intervalle bas
+                borne_max_bas: 0.4563763,    // Borne maximale de l'intervalle bas
+                borne_min_haut: 0.4737034,   // Borne minimale de l'intervalle haut
+                borne_max_haut: 0.9766953,   // Borne maximale de l'intervalle haut
+                n_patients_bas: 8,           // Nombre de patients dans l'intervalle bas
+                n_patients_haut: 71,         // Nombre de patients dans l'intervalle haut
+                seuil_utilise: 0.4652812     // Seuil utilisé pour la classification
             }
         };
 
@@ -894,8 +897,8 @@
             const probabiliteBrute = normalizationResult.probabiliteBrute;
             const probabiliteNormalisee = normalizationResult.probabiliteNormalisee;
             
-            // Détermination du cluster basé sur le seuil de 50%
-            const cluster = probabiliteNormalisee < 0.5 ? 1 : 2;
+            // Détermination du cluster basé sur le seuil de 0.4653 appliqué à la PROBABILITÉ BRUTE
+            const cluster = probabiliteBrute < normalizationParams.seuilOptimal ? 1 : 2;
             
             // Affichage des résultats
             displayResults(rawScore, probabiliteBrute, probabiliteNormalisee, cluster, calculationDetails);
@@ -919,7 +922,7 @@
             document.getElementById('cluster-desc').textContent = 
                 cluster === 1 ? 'Faible risque' : 'Haut risque';
             
-            // Niveau de risque
+            // Niveau de risque basé sur la probabilité NORMALISÉE (seuil à 0.5 après normalisation)
             const riskLevel = document.getElementById('risk-level');
             if (probabiliteNormalisee < 0.5) {
                 riskLevel.textContent = 'Faible';
@@ -944,14 +947,16 @@
                 recommendations = `
                     Patient classé dans le groupe à faible risque (Cluster 1). 
                     Surveillance standard recommandée avec réévaluation périodique. 
-                    La probabilité normalisée de ${(probabiliteNormalisee * 100).toFixed(1)}% est inférieure au seuil critique de 50%.
+                    La probabilité brute de ${(probabiliteBrute * 100).toFixed(2)}% est inférieure au seuil critique de ${(normalizationParams.seuilOptimal * 100).toFixed(2)}%.
+                    Après normalisation : ${(probabiliteNormalisee * 100).toFixed(1)}% (< 50%).
                     Pronostic de survie à J90 favorable selon le modèle.
                 `;
             } else {
                 recommendations = `
                     Patient classé dans le groupe à haut risque (Cluster 2). 
                     Surveillance intensive recommandée avec prise en charge thérapeutique agressive. 
-                    La probabilité normalisée de ${(probabiliteNormalisee * 100).toFixed(1)}% dépasse le seuil critique de 50%.
+                    La probabilité brute de ${(probabiliteBrute * 100).toFixed(2)}% dépasse le seuil critique de ${(normalizationParams.seuilOptimal * 100).toFixed(2)}%.
+                    Après normalisation : ${(probabiliteNormalisee * 100).toFixed(1)}% (≥ 50%).
                     Risque accru de mortalité à J90 - considérer l'escalade thérapeutique.
                 `;
             }
@@ -995,9 +1000,15 @@
                     <h4 style="margin-bottom: 10px;">🔬 Détails de la normalisation</h4>
                     <p><strong>Score brut:</strong> ${rawScore.toFixed(4)}</p>
                     <p><strong>Probabilité brute (logistique):</strong> ${probabiliteBrute.toFixed(4)} (${(probabiliteBrute * 100).toFixed(2)}%)</p>
-                    <p><strong>Probabilité normalisée:</strong> ${probabiliteNormalisee.toFixed(4)} (${(probabiliteNormalisee * 100).toFixed(2)}%)</p>
-                    <p><strong>Méthode:</strong> Normalisation par intervalles selon script normalisation.R</p>
-                    <p><strong>Seuil optimal:</strong> ${normalizationParams.seuilOptimal}</p>
+                    <p><strong>Classification (seuil sur proba brute):</strong> ${probabiliteBrute < normalizationParams.seuilOptimal ? 'Cluster 1 (< ' + (normalizationParams.seuilOptimal * 100).toFixed(2) + '%)' : 'Cluster 2 (≥ ' + (normalizationParams.seuilOptimal * 100).toFixed(2) + '%)'}</p>
+                    <p><strong>Probabilité normalisée (Min-Max):</strong> ${probabiliteNormalisee.toFixed(4)} (${(probabiliteNormalisee * 100).toFixed(2)}%)</p>
+                    <p style="margin-top: 10px; padding: 10px; background: #e0f2fe; border-left: 3px solid #0284c7; border-radius: 3px;">
+                        <strong>📊 Processus:</strong><br>
+                        1. Score brut → Transformation logistique → Proba brute<br>
+                        2. Comparaison proba brute vs seuil ${(normalizationParams.seuilOptimal * 100).toFixed(2)}% → Classification en Cluster<br>
+                        3. Normalisation Min-Max en 2 intervalles → Proba normalisée [0-1]<br>
+                        4. La barre visuelle affiche la proba normalisée avec seuil à 50%
+                    </p>
                 </div>
             `;
             
