@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\xEF\xBB\xBF<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -656,16 +656,26 @@
                     if (!isNaN(coeffValue) && feature) {
                         coefficients[feature] = coeffValue;
                         
-                        if (parts.length > 3) {
-                            const typeField = parts[3].replace(/^["']|["']$/g, '').trim();
-                            featureTypes[feature] = typeField;
+                        // Déterminer le type depuis la colonne 3 du CSV
+                        if (parts.length > 2) {
+                            const typeField = parts[2].replace(/^["']|["']$/g, '').trim();
+                            // Si la colonne 3 contient 'Gène', 'Gene', 'Génomique' etc.
+                            if (typeField.toLowerCase().includes('gene') || typeField.toLowerCase().includes('gén')) {
+                                featureTypes[feature] = 'Gene';
+                            } else if (typeField.toLowerCase().includes('clin')) {
+                                featureTypes[feature] = 'Clinical';
+                            } else {
+                                // Fallback: détecter par le nom de la feature
+                                featureTypes[feature] = feature.startsWith('ENSG') ? 'Gene' : 'Clinical';
+                            }
                         } else {
-                            // Utilisation de valeurs en anglais pour éviter les problèmes d'encodage
+                            // Pas de colonne type, détecter par le nom
                             featureTypes[feature] = feature.startsWith('ENSG') ? 'Gene' : 'Clinical';
                         }
                         
-                        if (parts.length > 4) {
-                            const directionField = parts[4].replace(/^["']|["']$/g, '').trim();
+                        // Déterminer la direction depuis la colonne 4 ou par le signe du coefficient
+                        if (parts.length > 3) {
+                            const directionField = parts[3].replace(/^["']|["']$/g, '').trim();
                             featureDirections[feature] = directionField;
                         } else {
                             featureDirections[feature] = coeffValue > 0 ? 'Favorable' : 'Défavorable';
