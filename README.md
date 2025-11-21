@@ -55,6 +55,8 @@ Le modèle a été rigoureusement validé avec les métriques suivantes :
 
 ### Lien 
 
+https://gclerempuy.github.io/Scoring_Sespsis/](https://gclerempuy.github.io/Scoring_Sespsis/
+
 ### Nécéssité
 
 Pour l'utilisation en ligne via GitHub page, vous aurez besoins de rentrer le taux d'expression des gènes suivants :
