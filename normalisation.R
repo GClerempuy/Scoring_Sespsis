@@ -6,11 +6,11 @@
 
 bornes_intervalles <- list(
   borne_min_bas = 0.390448,
-  borne_max_bas = 0.4563763,
-  borne_min_haut = 0.4737034,
+  borne_max_bas = 0.7629905 ,
+  borne_min_haut = 0.7686798,
   borne_max_haut = 0.9766953,
-  n_patients_bas = 8,
-  n_patients_haut = 71,
+  n_patients_bas = 49,
+  n_patients_haut = 30,
   seuil_utilise = 0.7658351
 )
 
