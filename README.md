@@ -55,16 +55,16 @@ Le modèle a été rigoureusement validé avec les métriques suivantes :
 
 ### Lien 
 
-### Bon à savoir
+### Nécéssité
 
-Pour l'utilisation en ligne via GitHub page, vous aurez besoins de rentrer les gènes suivants :
+Pour l'utilisation en ligne via GitHub page, vous aurez besoins de rentrer le taux d'expression des gènes suivants :
 
-**|ensembl_gene_id | hgnc_symbol | entrezgene_id|**
-|------------------|-------------|--------------|
-|ENSG00000134014 | ELP3 | 55140	|
-|ENSG00000137802 | MAPKBP1 | 23005 |	
-|ENSG00000155229 | MMS19 | 64210 |	
-|ENSG00000175216 | CKAP5 | 9793 |	
+| ensembl_gene_id | hgnc_symbol | entrezgene_id |
+|-----------------|-------------|---------------|
+| ENSG00000134014 | ELP3        | 55140         |
+| ENSG00000137802 | MAPKBP1     | 23005         |
+| ENSG00000155229 | MMS19       | 64210         |
+| ENSG00000175216 | CKAP5       | 9793          |
 
 | `-i` | `--input` | Fichier de données patients | ✅ Oui |
 | `-c` | `--coefficients` | Fichier des coefficients LASSO | ✅ Oui |
