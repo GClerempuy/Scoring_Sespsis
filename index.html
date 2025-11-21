@@ -1,4 +1,4 @@
-\xEF\xBB\xBF<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -531,9 +531,11 @@
         let featureTypes = {};
         let featureDirections = {};
         
-        // Paramètres de normalisation (issus du script R normalisation.R)
+        // ============================================================================
+        // PARAMÈTRES DE NORMALISATION - MISE À JOUR AVEC NOUVEAU SEUIL
+        // ============================================================================
         const normalizationParams = {
-            seuilOptimal: 0.4652812,
+            seuilOptimal: 0.7658351,  // ✅ MODIFIÉ: Nouveau seuil
             bornesIntervalles: {
                 borne_min_bas: 0.390448,
                 borne_max_bas: 0.4563763,
@@ -541,19 +543,23 @@
                 borne_max_haut: 0.9766953,
                 n_patients_bas: 8,
                 n_patients_haut: 71,
-                seuil_utilise: 0.4652812
+                seuil_utilise: 0.7658351  // ✅ MODIFIÉ: Nouveau seuil
             }
         };
 
         // ============================================================================
         // FONCTION DE NORMALISATION (traduite depuis normalisation.R)
+        // Normalisation en deux parties selon le seuil 0.7658351
         // ============================================================================
         function normaliserScore(scoreBrut, bornesIntervalles, seuilOptimal) {
+            // Transformation du score brut en probabilité logistique
             const proba = 1 / (1 + Math.exp(-scoreBrut));
             
             let probaNormalisee;
             
+            // ✅ Détermination de l'intervalle basé sur la probabilité BRUTE vs seuil
             if (proba < seuilOptimal) {
+                // Intervalle bas [0, 0.5[
                 const minIntervalle = bornesIntervalles.borne_min_bas;
                 const maxIntervalle = bornesIntervalles.borne_max_bas;
                 
@@ -562,13 +568,15 @@
                     return null;
                 }
                 
+                // Normalisation Min-Max dans [0, 0.5[
                 if (maxIntervalle === minIntervalle) {
-                    probaNormalisee = 0.25;
+                    probaNormalisee = 0.25;  // Valeur médiane si pas de variation
                 } else {
                     probaNormalisee = ((proba - minIntervalle) / (maxIntervalle - minIntervalle)) * 0.5;
                 }
                 
             } else {
+                // Intervalle haut [0.5, 1]
                 const minIntervalle = bornesIntervalles.borne_min_haut;
                 const maxIntervalle = bornesIntervalles.borne_max_haut;
                 
@@ -577,13 +585,15 @@
                     return null;
                 }
                 
+                // Normalisation Min-Max dans [0.5, 1]
                 if (maxIntervalle === minIntervalle) {
-                    probaNormalisee = 0.75;
+                    probaNormalisee = 0.75;  // Valeur médiane si pas de variation
                 } else {
                     probaNormalisee = 0.5 + ((proba - minIntervalle) / (maxIntervalle - minIntervalle)) * 0.5;
                 }
             }
             
+            // S'assurer que la valeur reste dans [0, 1]
             probaNormalisee = Math.max(0, Math.min(1, probaNormalisee));
             
             return {
@@ -659,17 +669,14 @@
                         // Déterminer le type depuis la colonne 3 du CSV
                         if (parts.length > 2) {
                             const typeField = parts[2].replace(/^["']|["']$/g, '').trim();
-                            // Si la colonne 3 contient 'Gène', 'Gene', 'Génomique' etc.
                             if (typeField.toLowerCase().includes('gene') || typeField.toLowerCase().includes('gén')) {
                                 featureTypes[feature] = 'Gene';
                             } else if (typeField.toLowerCase().includes('clin')) {
                                 featureTypes[feature] = 'Clinical';
                             } else {
-                                // Fallback: détecter par le nom de la feature
                                 featureTypes[feature] = feature.startsWith('ENSG') ? 'Gene' : 'Clinical';
                             }
                         } else {
-                            // Pas de colonne type, détecter par le nom
                             featureTypes[feature] = feature.startsWith('ENSG') ? 'Gene' : 'Clinical';
                         }
                         
@@ -865,6 +872,7 @@
                 return;
             }
             
+            // ✅ Calcul du score brut (somme pondérée)
             let rawScore = 0;
             const calculationDetails = [];
             
@@ -880,6 +888,7 @@
                 });
             }
             
+            // ✅ Application de la normalisation en deux parties
             const normalizationResult = normaliserScore(
                 rawScore, 
                 normalizationParams.bornesIntervalles, 
@@ -894,6 +903,7 @@
             const probabiliteBrute = normalizationResult.probabiliteBrute;
             const probabiliteNormalisee = normalizationResult.probabiliteNormalisee;
             
+            // ✅ Détermination du cluster basé sur la probabilité BRUTE vs seuil 0.7658351
             const cluster = probabiliteBrute < normalizationParams.seuilOptimal ? 1 : 2;
             
             displayResults(rawScore, probabiliteBrute, probabiliteNormalisee, cluster, calculationDetails);
@@ -992,12 +1002,12 @@
                     <p><strong>Score brut:</strong> ${rawScore.toFixed(4)}</p>
                     <p><strong>Probabilité brute (logistique):</strong> ${probabiliteBrute.toFixed(4)} (${(probabiliteBrute * 100).toFixed(2)}%)</p>
                     <p><strong>Classification (seuil sur proba brute):</strong> ${probabiliteBrute < normalizationParams.seuilOptimal ? 'Cluster 1 (< ' + (normalizationParams.seuilOptimal * 100).toFixed(2) + '%)' : 'Cluster 2 (≥ ' + (normalizationParams.seuilOptimal * 100).toFixed(2) + '%)'}</p>
-                    <p><strong>Probabilité normalisée (Min-Max):</strong> ${probabiliteNormalisee.toFixed(4)} (${(probabiliteNormalisee * 100).toFixed(2)}%)</p>
+                    <p><strong>Probabilité normalisée (Min-Max en 2 intervalles):</strong> ${probabiliteNormalisee.toFixed(4)} (${(probabiliteNormalisee * 100).toFixed(2)}%)</p>
                     <p style="margin-top: 10px; padding: 10px; background: #e0f2fe; border-left: 3px solid #0284c7; border-radius: 3px;">
                         <strong>📊 Processus:</strong><br>
                         1. Score brut → Transformation logistique → Proba brute<br>
                         2. Comparaison proba brute vs seuil ${(normalizationParams.seuilOptimal * 100).toFixed(2)}% → Classification en Cluster<br>
-                        3. Normalisation Min-Max en 2 intervalles → Proba normalisée [0-1]<br>
+                        3. Normalisation Min-Max en 2 intervalles (bas: [0, 0.5[, haut: [0.5, 1]) → Proba normalisée [0-1]<br>
                         4. La barre visuelle affiche la proba normalisée avec seuil à 50%
                     </p>
                 </div>
