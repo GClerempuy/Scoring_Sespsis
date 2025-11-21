@@ -372,6 +372,220 @@
             font-weight: 600;
         }
 
+        /* ============================================ */
+        /* STYLES D'IMPRESSION OPTIMISÉS */
+        /* ============================================ */
+        @media print {
+            /* Masquer les éléments non essentiels */
+            .no-print,
+            .btn-container,
+            button,
+            input[type="file"],
+            .warning-banner,
+            .risk-bar,
+            .risk-assessment,
+            #loading-status,
+            #feature-status,
+            .header p {
+                display: none !important;
+            }
+
+            /* Réinitialiser les couleurs pour économiser l'encre */
+            * {
+                background: white !important;
+                color: black !important;
+                box-shadow: none !important;
+                text-shadow: none !important;
+            }
+
+            body {
+                margin: 0;
+                padding: 10px;
+                background: white !important;
+            }
+
+            .container {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+
+            .header {
+                background: white !important;
+                color: black !important;
+                padding: 10px 0 !important;
+                border-bottom: 2px solid black;
+            }
+
+            .header h1 {
+                font-size: 16pt !important;
+                color: black !important;
+            }
+
+            .content {
+                padding: 10px !important;
+            }
+
+            /* Sections compactes */
+            .section {
+                margin-bottom: 15px !important;
+                page-break-inside: avoid;
+            }
+
+            .section h2 {
+                font-size: 12pt !important;
+                margin-bottom: 8px !important;
+                border-bottom: 1px solid black !important;
+                padding-bottom: 3px !important;
+            }
+
+            h3 {
+                font-size: 11pt !important;
+                margin: 8px 0 5px 0 !important;
+            }
+
+            /* Grille d'inputs compacte */
+            .input-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+                margin-bottom: 10px !important;
+            }
+
+            .input-group {
+                background: white !important;
+                padding: 5px !important;
+                border: 1px solid #ccc !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+            }
+
+            .input-group label {
+                font-size: 9pt !important;
+                margin-bottom: 2px !important;
+            }
+
+            .input-group input {
+                border: none !important;
+                border-bottom: 1px solid black !important;
+                padding: 2px !important;
+                font-size: 9pt !important;
+                background: white !important;
+            }
+
+            .input-group small {
+                font-size: 7pt !important;
+                margin-top: 2px !important;
+            }
+
+            .coefficient-display {
+                background: white !important;
+                border: 1px solid black !important;
+                padding: 1px 4px !important;
+                font-size: 8pt !important;
+            }
+
+            /* Résultats compacts */
+            #results {
+                display: block !important;
+                background: white !important;
+                padding: 10px !important;
+                margin-top: 10px !important;
+                border: 2px solid black !important;
+                page-break-inside: avoid;
+            }
+
+            .result-grid {
+                display: grid !important;
+                grid-template-columns: repeat(5, 1fr) !important;
+                gap: 5px !important;
+                margin-bottom: 10px !important;
+            }
+
+            .result-card {
+                background: white !important;
+                padding: 8px !important;
+                border: 1px solid black !important;
+                border-radius: 0 !important;
+            }
+
+            .result-card h3 {
+                font-size: 8pt !important;
+                margin-bottom: 3px !important;
+            }
+
+            .result-value {
+                font-size: 14pt !important;
+                margin-bottom: 2px !important;
+            }
+
+            .result-card small {
+                font-size: 7pt !important;
+            }
+
+            /* Info box simplifié */
+            .info-box {
+                background: white !important;
+                border: 1px solid black !important;
+                padding: 8px !important;
+                margin: 8px 0 !important;
+                page-break-inside: avoid;
+            }
+
+            .info-box h4 {
+                font-size: 10pt !important;
+                margin-bottom: 5px !important;
+                color: black !important;
+            }
+
+            .info-box p {
+                font-size: 8pt !important;
+                line-height: 1.3 !important;
+            }
+
+            /* Tableau compact */
+            table {
+                font-size: 8pt !important;
+                margin-top: 5px !important;
+            }
+
+            table th, table td {
+                padding: 3px 5px !important;
+                border: 1px solid black !important;
+            }
+
+            table th {
+                background: #f0f0f0 !important;
+                font-weight: bold !important;
+            }
+
+            /* Avertissement simplifié pour l'impression */
+            .print-warning {
+                display: block !important;
+                font-size: 8pt !important;
+                font-style: italic !important;
+                padding: 5px !important;
+                border-top: 1px solid black !important;
+                margin-top: 10px !important;
+                page-break-before: avoid;
+            }
+
+            /* Forcer la densité */
+            p, div {
+                line-height: 1.2 !important;
+            }
+        }
+
+        /* Classe pour éléments visibles uniquement à l'impression */
+        .print-only {
+            display: none;
+        }
+
+        @media print {
+            .print-only {
+                display: block !important;
+            }
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
@@ -394,13 +608,19 @@
             <p>Modèle de stratification des risques basé sur LASSO et clustering - UVSQ</p>
         </div>
 
-        <div class="warning-banner">
+        <!-- Avertissement visible à l'écran -->
+        <div class="warning-banner no-print">
             <strong>⚠️ Avertissement médical :</strong> Cet outil est destiné à un usage de recherche et d'aide à la décision clinique. 
             Il ne remplace pas le jugement médical professionnel. Les résultats doivent être interprétés dans le contexte clinique global du patient.
         </div>
 
+        <!-- Avertissement simplifié pour l'impression -->
+        <div class="print-only print-warning">
+            ⚠️ Outil d'aide à la décision clinique - Ne remplace pas le jugement médical professionnel - UVSQ
+        </div>
+
         <div class="content">
-            <div class="section">
+            <div class="section no-print">
                 <h2>📁 Chargement des Coefficients</h2>
                 <div class="btn-container">
                     <button class="btn-load" onclick="loadCoefficientsFromGitHub()">
@@ -431,7 +651,7 @@
 
                 <div class="section">
                     <h2>🧬 Variables du Modèle</h2>
-                    <p style="margin-bottom: 20px; color: #6b7280;">
+                    <p class="no-print" style="margin-bottom: 20px; color: #6b7280;">
                         Entrez les valeurs pour chaque variable. Les variables sont automatiquement chargées depuis votre fichier de coefficients.
                     </p>
                     
@@ -446,7 +666,7 @@
                     </div>
                 </div>
 
-                <div class="btn-container">
+                <div class="btn-container no-print">
                     <button class="btn-load" onclick="loadExampleData()">
                         📝 Charger Exemple
                     </button>
@@ -488,7 +708,7 @@
                     </div>
                 </div>
 
-                <div class="risk-assessment">
+                <div class="risk-assessment no-print">
                     <h3>Visualisation du Risque</h3>
                     <div class="risk-bar">
                         <div id="risk-indicator" class="risk-indicator" style="left: 0%;">
@@ -513,7 +733,7 @@
                     <div id="calculation-details"></div>
                 </div>
 
-                <div class="btn-container">
+                <div class="btn-container no-print">
                     <button onclick="exportResults()" style="background: #059669; color: white;">
                         📥 Exporter les Résultats (CSV)
                     </button>
