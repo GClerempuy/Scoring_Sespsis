@@ -55,7 +55,7 @@ Le modèle a été rigoureusement validé avec les métriques suivantes :
 
 ### Lien 
 
-https://gclerempuy.github.io/Scoring_Sespsis/](https://gclerempuy.github.io/Scoring_Sespsis/
+https://gclerempuy.github.io/Scoring_Sespsis/
 
 ### Nécéssité
 
