@@ -11,11 +11,10 @@ bornes_intervalles <- list(
   borne_max_haut = 0.9766953,
   n_patients_bas = 8,
   n_patients_haut = 71,
-  seuil_utilise = 0.4652812
+  seuil_utilise = 0.7658351
 )
 
-seuil_optimal <- 0.4652812
-
+seuil_optimal <- 0.7658351
 normaliser_score <- function(score_brut, bornes_intervalles, seuil_optimal) {
   # Transformation du score brut en probabilité
   proba <- 1 / (1 + exp(-score_brut))
