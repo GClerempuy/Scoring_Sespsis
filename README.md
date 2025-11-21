@@ -93,10 +93,11 @@ Fichier des coefficients du modèle LASSO :
 - **Exemple** :
 ```csv
 Feature,Coefficient,Type
-CRP,0.0234,Selected
-Lactate,0.0456,Selected
-Age,0.0123,Selected
-```
+ENSG00000134014, 0.488, Gène
+ENSG00000137802, 0.3306, Gène	
+ENSG00000155229,0.3273,	Gène	
+ENSG00000175216,	0.241, Gène	
+I_AGE, -0.0123,	Clinique
 
 ### Fichier de Sortie
 
@@ -394,34 +395,11 @@ Rscript Scoring_UVSQ_cluster.R --help
 Scoring_Sespsis/
 ├── Scoring_UVSQ_cluster.R      # Script principal
 ├── normalisation.R              # Fonction de normalisation
-├── README.md                    # Documentation
-├── examples/                    # Exemples de données
-│   ├── Data_metadata.csv
-│   └── Coefficients_clust.csv
-└── docs/                        # Documentation additionnelle
+├── README.md                  # Documentation
+├── Coefficients_clust.csv
 ```
 
 ---
-
-## 🎓 Cas d'Usage Clinique
-
-### Scénario 1 : Patient aux Urgences
-```
-Patient XYZ arrive aux urgences avec suspicion de sepsis
-→ Prélèvements biologiques effectués
-→ Score calculé : Proba_Brute = 0.45 (Cluster 1)
-→ Interprétation : Risque faible, surveillance standard
-→ Décision : Hospitalisation en service conventionnel
-```
-
-### Scénario 2 : Patient en Réanimation
-```
-Patient ABC en réanimation, état critique
-→ Bilan biologique réalisé
-→ Score calculé : Proba_Brute = 0.85 (Cluster 2)
-→ Interprétation : Risque élevé, pronostic réservé
-→ Décision : Surveillance renforcée + traitement agressif
-```
 
 ### Utilité du Score
 - ✅ **Triage** : Identification rapide des patients critiques
@@ -429,25 +407,6 @@ Patient ABC en réanimation, état critique
 - ✅ **Suivi** : Évaluation de l'évolution clinique
 - ✅ **Communication** : Outil objectif patient/famille
 - ✅ **Recherche** : Homogénéisation des cohortes
-
----
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! Pour contribuer :
-
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/amelioration`)
-3. Commit les changements (`git commit -m 'Ajout fonctionnalité'`)
-4. Push vers la branche (`git push origin feature/amelioration`)
-5. Ouvrir une Pull Request
-
-### Domaines de Contribution
-- 🐛 Correction de bugs
-- 📚 Amélioration de la documentation
-- ✨ Nouvelles fonctionnalités
-- 🧪 Tests et validation
-- 🌐 Traductions
 
 ---
 
@@ -466,56 +425,6 @@ Les contributions sont les bienvenues ! Pour contribuer :
 Ce projet est développé dans un cadre de recherche médicale. L'utilisation est soumise aux réglementations en vigueur concernant les données de santé.
 
 **⚠️ Disclaimer** : Cet outil est destiné à la recherche et à l'aide à la décision clinique. Il ne doit pas être utilisé comme unique critère de décision thérapeutique. Les décisions cliniques finales doivent toujours être prises par des professionnels de santé qualifiés en tenant compte de l'ensemble du contexte clinique.
-
----
-
-## 🔄 Historique des Versions
-
-### Version 2.0 (Actuelle) - Novembre 2025
-- ✨ **Normalisation avancée** avec bornes d'intervalles par cluster
-- ✨ **Probabilités brutes** via transformation logistique
-- ✨ **Métriques complètes** : AUC (0.878), Accuracy (82.3%), F1-Score (85.1%)
-- ✨ **Validation robuste** : Option `-t` pour calcul automatique des performances
-- 🎯 **Sensibilité optimisée** : 88.9% (détection haut risque)
-- 🐛 **Attribution clusters** corrigée (basée sur probabilité brute)
-- 📊 **Interface web** disponible
-
-### Version 1.0 - Initial Release
-- 🎉 Release initiale
-- ✅ Calcul des scores bruts
-- ✅ Normalisation min-max simple
-- ✅ Attribution des clusters
-
----
-
-## 📈 Roadmap
-
-### Prochaines Améliorations
-- [ ] Interface graphique Shiny
-- [ ] API REST pour intégration hospitalière
-- [ ] Export automatique vers DPI
-- [ ] Tableau de bord temps réel
-- [ ] Application mobile
-- [ ] Intégration FHIR
-
----
-
-## 🏆 Reconnaissance
-
-Ce travail a été développé dans le cadre de recherches sur le sepsis menées à l'UVSQ. Nous remercions :
-- Les équipes médicales pour leur expertise clinique
-- Les patients ayant participé aux études
-- L'équipe de recherche pour le développement du modèle
-
----
-
-## 📞 Support
-
-Pour obtenir de l'aide :
-- 📖 Consulter la [documentation complète](https://gclerempuy.github.io/Scoring_Sespsis/)
-- 🐛 Signaler un bug via [Issues](https://github.com/GClerempuy/Scoring_Sespsis/issues)
-- 💬 Poser une question via [Discussions](https://github.com/GClerempuy/Scoring_Sespsis/discussions)
-- 📧 Contact direct pour collaborations institutionnelles
 
 ---
 
