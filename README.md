@@ -51,6 +51,25 @@ Le modèle a été rigoureusement validé avec les métriques suivantes :
 - **Cluster 2** : Patients à haut risque (probabilité brute ≥ 76.58%)
 
 ---
+## 🌐 Utilisation en ligne
+
+### Lien 
+
+### Bon à savoir
+
+Pour l'utilisation en ligne via GitHub page, vous aurez besoins de rentrer les gènes suivants :
+
+**|ensembl_gene_id | hgnc_symbol | entrezgene_id|**
+|------------------|-------------|--------------|
+|ENSG00000134014 | ELP3 | 55140	|
+|ENSG00000137802 | MAPKBP1 | 23005 |	
+|ENSG00000155229 | MMS19 | 64210 |	
+|ENSG00000175216 | CKAP5 | 9793 |	
+
+| `-i` | `--input` | Fichier de données patients | ✅ Oui |
+| `-c` | `--coefficients` | Fichier des coefficients LASSO | ✅ Oui |
+
+Ainsi que l'âge du patient que vous souhaitez vérifier, la version en ligne ne marche que pour 1 patient à la fois.
 
 ## 🛠️ Prérequis Techniques
 
@@ -181,9 +200,9 @@ RÉSULTATS DE LA PRÉDICTION
 
 Matrice de confusion:
        Prediction
-Verite   1  2
-     1  XX  X
-     2   X XX
+Verite   1   2
+     1  40  05
+     2  09  25
 ```
 
 ---
