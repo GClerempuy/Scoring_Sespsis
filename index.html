@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur de Score de Sepsis - UVSQ</title>
+    <title>Calculateur de Score de Sepsis - UVSQ (avec Batch)</title>
     <style>
         * {
             margin: 0;
@@ -144,6 +144,15 @@
             margin: 20px 0;
         }
 
+        .success {
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: #166534;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
         .btn-container {
             display: flex;
             gap: 15px;
@@ -193,6 +202,110 @@
 
         .btn-load:hover {
             background: #2563eb;
+        }
+
+        .btn-batch {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .btn-batch:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .mode-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .mode-tab {
+            padding: 15px 30px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #6b7280;
+            transition: all 0.3s;
+        }
+
+        .mode-tab:hover {
+            color: #4f46e5;
+        }
+
+        .mode-tab.active {
+            color: #4f46e5;
+            border-bottom-color: #4f46e5;
+        }
+
+        .mode-content {
+            display: none;
+        }
+
+        .mode-content.active {
+            display: block;
+        }
+
+        .batch-section {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #d1d5db;
+            text-align: center;
+        }
+
+        .batch-section h3 {
+            color: #374151;
+            margin-bottom: 15px;
+        }
+
+        .batch-info {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: left;
+        }
+
+        .batch-info h4 {
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+
+        .batch-info ul {
+            margin-left: 20px;
+            color: #1e3a8a;
+        }
+
+        .batch-info li {
+            margin: 5px 0;
+        }
+
+        .progress-container {
+            width: 100%;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
         }
 
         #results {
@@ -372,220 +485,6 @@
             font-weight: 600;
         }
 
-        /* ============================================ */
-        /* STYLES D'IMPRESSION OPTIMISÉS */
-        /* ============================================ */
-        @media print {
-            /* Masquer les éléments non essentiels */
-            .no-print,
-            .btn-container,
-            button,
-            input[type="file"],
-            .warning-banner,
-            .risk-bar,
-            .risk-assessment,
-            #loading-status,
-            #feature-status,
-            .header p {
-                display: none !important;
-            }
-
-            /* Réinitialiser les couleurs pour économiser l'encre */
-            * {
-                background: white !important;
-                color: black !important;
-                box-shadow: none !important;
-                text-shadow: none !important;
-            }
-
-            body {
-                margin: 0;
-                padding: 10px;
-                background: white !important;
-            }
-
-            .container {
-                box-shadow: none !important;
-                border-radius: 0 !important;
-            }
-
-            .header {
-                background: white !important;
-                color: black !important;
-                padding: 10px 0 !important;
-                border-bottom: 2px solid black;
-            }
-
-            .header h1 {
-                font-size: 16pt !important;
-                color: black !important;
-            }
-
-            .content {
-                padding: 10px !important;
-            }
-
-            /* Sections compactes */
-            .section {
-                margin-bottom: 15px !important;
-                page-break-inside: avoid;
-            }
-
-            .section h2 {
-                font-size: 12pt !important;
-                margin-bottom: 8px !important;
-                border-bottom: 1px solid black !important;
-                padding-bottom: 3px !important;
-            }
-
-            h3 {
-                font-size: 11pt !important;
-                margin: 8px 0 5px 0 !important;
-            }
-
-            /* Grille d'inputs compacte */
-            .input-grid {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 8px !important;
-                margin-bottom: 10px !important;
-            }
-
-            .input-group {
-                background: white !important;
-                padding: 5px !important;
-                border: 1px solid #ccc !important;
-                border-radius: 0 !important;
-                margin: 0 !important;
-            }
-
-            .input-group label {
-                font-size: 9pt !important;
-                margin-bottom: 2px !important;
-            }
-
-            .input-group input {
-                border: none !important;
-                border-bottom: 1px solid black !important;
-                padding: 2px !important;
-                font-size: 9pt !important;
-                background: white !important;
-            }
-
-            .input-group small {
-                font-size: 7pt !important;
-                margin-top: 2px !important;
-            }
-
-            .coefficient-display {
-                background: white !important;
-                border: 1px solid black !important;
-                padding: 1px 4px !important;
-                font-size: 8pt !important;
-            }
-
-            /* Résultats compacts */
-            #results {
-                display: block !important;
-                background: white !important;
-                padding: 10px !important;
-                margin-top: 10px !important;
-                border: 2px solid black !important;
-                page-break-inside: avoid;
-            }
-
-            .result-grid {
-                display: grid !important;
-                grid-template-columns: repeat(5, 1fr) !important;
-                gap: 5px !important;
-                margin-bottom: 10px !important;
-            }
-
-            .result-card {
-                background: white !important;
-                padding: 8px !important;
-                border: 1px solid black !important;
-                border-radius: 0 !important;
-            }
-
-            .result-card h3 {
-                font-size: 8pt !important;
-                margin-bottom: 3px !important;
-            }
-
-            .result-value {
-                font-size: 14pt !important;
-                margin-bottom: 2px !important;
-            }
-
-            .result-card small {
-                font-size: 7pt !important;
-            }
-
-            /* Info box simplifié */
-            .info-box {
-                background: white !important;
-                border: 1px solid black !important;
-                padding: 8px !important;
-                margin: 8px 0 !important;
-                page-break-inside: avoid;
-            }
-
-            .info-box h4 {
-                font-size: 10pt !important;
-                margin-bottom: 5px !important;
-                color: black !important;
-            }
-
-            .info-box p {
-                font-size: 8pt !important;
-                line-height: 1.3 !important;
-            }
-
-            /* Tableau compact */
-            table {
-                font-size: 8pt !important;
-                margin-top: 5px !important;
-            }
-
-            table th, table td {
-                padding: 3px 5px !important;
-                border: 1px solid black !important;
-            }
-
-            table th {
-                background: #f0f0f0 !important;
-                font-weight: bold !important;
-            }
-
-            /* Avertissement simplifié pour l'impression */
-            .print-warning {
-                display: block !important;
-                font-size: 8pt !important;
-                font-style: italic !important;
-                padding: 5px !important;
-                border-top: 1px solid black !important;
-                margin-top: 10px !important;
-                page-break-before: avoid;
-            }
-
-            /* Forcer la densité */
-            p, div {
-                line-height: 1.2 !important;
-            }
-        }
-
-        /* Classe pour éléments visibles uniquement à l'impression */
-        .print-only {
-            display: none;
-        }
-
-        @media print {
-            .print-only {
-                display: block !important;
-            }
-        }
-
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
@@ -598,6 +497,10 @@
             .result-grid {
                 grid-template-columns: 1fr;
             }
+
+            .mode-tabs {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -608,27 +511,21 @@
             <p>Modèle de stratification des risques basé sur LASSO et clustering - UVSQ</p>
         </div>
 
-        <!-- Avertissement visible à l'écran -->
-        <div class="warning-banner no-print">
+        <div class="warning-banner">
             <strong>⚠️ Avertissement médical :</strong> Cet outil est destiné à un usage de recherche et d'aide à la décision clinique. 
             Il ne remplace pas le jugement médical professionnel. Les résultats doivent être interprétés dans le contexte clinique global du patient.
         </div>
 
-        <!-- Avertissement simplifié pour l'impression -->
-        <div class="print-only print-warning">
-            ⚠️ Outil d'aide à la décision clinique - Ne remplace pas le jugement médical professionnel - UVSQ
-        </div>
-
         <div class="content">
-            <div class="section no-print">
+            <div class="section">
                 <h2>📁 Chargement des Coefficients</h2>
                 <div class="btn-container">
                     <button class="btn-load" onclick="loadCoefficientsFromGitHub()">
-                        🔄 Charger les Coefficients depuis GitHub
+                        🔄 Charger depuis GitHub
                     </button>
-                    <input type="file" id="fileInput" accept=".csv,.txt,.tsv" style="display: none;" onchange="loadCoefficientsFromFile(event)">
-                    <button class="btn-load" onclick="document.getElementById('fileInput').click()">
-                        📂 Charger depuis un Fichier Local
+                    <input type="file" id="coeffFileInput" accept=".csv,.txt,.tsv" style="display: none;" onchange="loadCoefficientsFromFile(event)">
+                    <button class="btn-load" onclick="document.getElementById('coeffFileInput').click()">
+                        📂 Charger depuis Fichier
                     </button>
                 </div>
                 <div id="loading-status"></div>
@@ -638,47 +535,94 @@
                 </div>
             </div>
 
-            <div id="input-section" style="display: none;">
-                <div class="section">
-                    <h2>📋 Métadonnées du Patient</h2>
-                    <div class="input-grid">
-                        <div class="input-group">
-                            <label for="patient-id">Identifiant Patient</label>
-                            <input type="text" id="patient-id" placeholder="Ex: PAT001">
+            <div id="main-section" style="display: none;">
+                <!-- Onglets de mode -->
+                <div class="mode-tabs">
+                    <button class="mode-tab active" onclick="switchMode('single')">
+                        👤 Mode Patient Unique
+                    </button>
+                    <button class="mode-tab" onclick="switchMode('batch')">
+                        📊 Mode Traitement par Lot (CSV)
+                    </button>
+                </div>
+
+                <!-- Mode Patient Unique -->
+                <div id="single-mode" class="mode-content active">
+                    <div class="section">
+                        <h2>📋 Métadonnées du Patient</h2>
+                        <div class="input-grid">
+                            <div class="input-group">
+                                <label for="patient-id">Identifiant Patient</label>
+                                <input type="text" id="patient-id" placeholder="Ex: PAT001">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>🧬 Variables du Modèle</h2>
+                        
+                        <h3 style="color: #92400e; margin-bottom: 15px;">🧬 Variables Génomiques</h3>
+                        <div id="gene-inputs" class="input-grid"></div>
+                        
+                        <h3 style="color: #075985; margin-bottom: 15px; margin-top: 30px;">📊 Variables Cliniques</h3>
+                        <div id="clinical-inputs" class="input-grid"></div>
+                    </div>
+
+                    <div class="btn-container">
+                        <button class="btn-load" onclick="loadExampleData()">
+                            📝 Charger Exemple
+                        </button>
+                        <button class="btn-calculate" onclick="calculateScore()">
+                            🔬 Calculer le Score
+                        </button>
+                        <button class="btn-reset" onclick="resetForm()">
+                            🔄 Réinitialiser
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mode Batch -->
+                <div id="batch-mode" class="mode-content">
+                    <div class="section">
+                        <div class="batch-section">
+                            <h3>📊 Traitement par Lot (Batch Processing)</h3>
+                            <p style="color: #6b7280; margin: 15px 0;">
+                                Téléchargez un fichier CSV contenant plusieurs patients pour obtenir les prédictions en masse
+                            </p>
+                            
+                            <div class="batch-info">
+                                <h4>📋 Format du fichier CSV requis :</h4>
+                                <ul>
+                                    <li>Première colonne : <strong>Sample_ID</strong> (identifiant unique du patient)</li>
+                                    <li>Colonnes suivantes : une colonne par variable du modèle</li>
+                                    <li>Les noms des colonnes doivent correspondre exactement aux noms des variables chargées</li>
+                                    <li>Séparateur : virgule (,)</li>
+                                    <li>Première ligne : en-têtes de colonnes</li>
+                                </ul>
+                                <p style="margin-top: 10px;"><strong>Exemple :</strong></p>
+                                <code style="display: block; background: white; padding: 10px; border-radius: 5px; margin-top: 5px;">
+                                    Sample_ID,ENSG00000134014,ENSG00000137802,I_AGE<br>
+                                    PAT001,2.046,1.360,64<br>
+                                    PAT002,1.823,1.542,58
+                                </code>
+                            </div>
+
+                            <input type="file" id="batchFileInput" accept=".csv" style="display: none;" onchange="processBatchFile(event)">
+                            <button class="btn-batch" onclick="document.getElementById('batchFileInput').click()">
+                                📁 Sélectionner un fichier CSV
+                            </button>
+
+                            <div class="progress-container" id="progress-container">
+                                <div class="progress-bar" id="progress-bar">0%</div>
+                            </div>
+
+                            <div id="batch-status"></div>
                         </div>
                     </div>
                 </div>
-
-                <div class="section">
-                    <h2>🧬 Variables du Modèle</h2>
-                    <p class="no-print" style="margin-bottom: 20px; color: #6b7280;">
-                        Entrez les valeurs pour chaque variable. Les variables sont automatiquement chargées depuis votre fichier de coefficients.
-                    </p>
-                    
-                    <h3 style="color: #92400e; margin-bottom: 15px;">🧬 Variables Génomiques</h3>
-                    <div id="gene-inputs" class="input-grid">
-                        <!-- Les inputs génomiques seront générés ici -->
-                    </div>
-                    
-                    <h3 style="color: #075985; margin-bottom: 15px; margin-top: 30px;">📊 Variables Cliniques</h3>
-                    <div id="clinical-inputs" class="input-grid">
-                        <!-- Les inputs cliniques seront générés ici -->
-                    </div>
-                </div>
-
-                <div class="btn-container no-print">
-                    <button class="btn-load" onclick="loadExampleData()">
-                        📝 Charger Exemple
-                    </button>
-                    <button class="btn-calculate" onclick="calculateScore()" id="calculate-btn">
-                        🔬 Calculer le Score
-                    </button>
-                    <button class="btn-reset" onclick="resetForm()">
-                        🔄 Réinitialiser
-                    </button>
-                </div>
             </div>
 
+            <!-- Résultats pour mode unique -->
             <div id="results">
                 <h2>📈 Résultats de l'Analyse</h2>
                 
@@ -708,7 +652,7 @@
                     </div>
                 </div>
 
-                <div class="risk-assessment no-print">
+                <div class="risk-assessment">
                     <h3>Visualisation du Risque</h3>
                     <div class="risk-bar">
                         <div id="risk-indicator" class="risk-indicator" style="left: 0%;">
@@ -733,11 +677,11 @@
                     <div id="calculation-details"></div>
                 </div>
 
-                <div class="btn-container no-print">
+                <div class="btn-container">
                     <button onclick="exportResults()" style="background: #059669; color: white;">
                         📥 Exporter les Résultats (CSV)
                     </button>
-                    <button onclick="printResults()" style="background: #6366f1; color: white;">
+                    <button onclick="window.print()" style="background: #6366f1; color: white;">
                         🖨️ Imprimer
                     </button>
                 </div>
@@ -751,75 +695,223 @@
         let featureTypes = {};
         let featureDirections = {};
         
-        // ============================================================================
-        // PARAMÈTRES DE NORMALISATION - BORNES CORRIGÉES
-        // ============================================================================
         const normalizationParams = {
             seuilOptimal: 0.7658351,
             bornesIntervalles: {
                 borne_min_bas: 0.390448,
-                borne_max_bas: 0.7629905,      // ✅ CORRIGÉ: Max du cluster bas
-                borne_min_haut: 0.7686798,     // ✅ CORRIGÉ: Min du cluster haut
+                borne_max_bas: 0.7629905,
+                borne_min_haut: 0.7686798,
                 borne_max_haut: 0.9766953,
-                n_patients_bas: 49,            // ✅ CORRIGÉ: Nombre de patients
-                n_patients_haut: 30,           // ✅ CORRIGÉ: Nombre de patients
+                n_patients_bas: 49,
+                n_patients_haut: 30,
                 seuil_utilise: 0.7658351
             }
         };
 
-        // ============================================================================
-        // FONCTION DE NORMALISATION (traduite depuis normalisation.R)
-        // Normalisation en deux parties selon le seuil 0.7658351
-        // ============================================================================
-        function normaliserScore(scoreBrut, bornesIntervalles, seuilOptimal) {
-            // Transformation du score brut en probabilité logistique
-            const proba = 1 / (1 + Math.exp(-scoreBrut));
+        function switchMode(mode) {
+            document.querySelectorAll('.mode-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.mode-content').forEach(content => content.classList.remove('active'));
             
+            if (mode === 'single') {
+                document.querySelector('.mode-tab:nth-child(1)').classList.add('active');
+                document.getElementById('single-mode').classList.add('active');
+                document.getElementById('results').style.display = 'none';
+            } else {
+                document.querySelector('.mode-tab:nth-child(2)').classList.add('active');
+                document.getElementById('batch-mode').classList.add('active');
+                document.getElementById('results').style.display = 'none';
+            }
+        }
+
+        function normaliserScore(scoreBrut, bornesIntervalles, seuilOptimal) {
+            const proba = 1 / (1 + Math.exp(-scoreBrut));
             let probaNormalisee;
             
-            // ✅ Détermination de l'intervalle basé sur la probabilité BRUTE vs seuil
             if (proba < seuilOptimal) {
-                // Intervalle bas [0, 0.5[
                 const minIntervalle = bornesIntervalles.borne_min_bas;
                 const maxIntervalle = bornesIntervalles.borne_max_bas;
                 
                 if (isNaN(minIntervalle) || isNaN(maxIntervalle)) {
-                    console.warn("Bornes de l'intervalle bas non disponibles");
                     return null;
                 }
                 
-                // Normalisation Min-Max dans [0, 0.5[
                 if (maxIntervalle === minIntervalle) {
-                    probaNormalisee = 0.25;  // Valeur médiane si pas de variation
+                    probaNormalisee = 0.25;
                 } else {
                     probaNormalisee = ((proba - minIntervalle) / (maxIntervalle - minIntervalle)) * 0.5;
                 }
-                
             } else {
-                // Intervalle haut [0.5, 1]
                 const minIntervalle = bornesIntervalles.borne_min_haut;
                 const maxIntervalle = bornesIntervalles.borne_max_haut;
                 
                 if (isNaN(minIntervalle) || isNaN(maxIntervalle)) {
-                    console.warn("Bornes de l'intervalle haut non disponibles");
                     return null;
                 }
                 
-                // Normalisation Min-Max dans [0.5, 1]
                 if (maxIntervalle === minIntervalle) {
-                    probaNormalisee = 0.75;  // Valeur médiane si pas de variation
+                    probaNormalisee = 0.75;
                 } else {
                     probaNormalisee = 0.5 + ((proba - minIntervalle) / (maxIntervalle - minIntervalle)) * 0.5;
                 }
             }
             
-            // S'assurer que la valeur reste dans [0, 1]
             probaNormalisee = Math.max(0, Math.min(1, probaNormalisee));
             
             return {
                 probabiliteBrute: proba,
                 probabiliteNormalisee: probaNormalisee
             };
+        }
+
+        function calculateScoreForPatient(patientData) {
+            let rawScore = 0;
+            
+            for (const [feature, coefficient] of Object.entries(coefficients)) {
+                if (patientData.hasOwnProperty(feature)) {
+                    const value = parseFloat(patientData[feature]);
+                    if (!isNaN(value)) {
+                        rawScore += value * coefficient;
+                    }
+                }
+            }
+            
+            const normalizationResult = normaliserScore(
+                rawScore, 
+                normalizationParams.bornesIntervalles, 
+                normalizationParams.seuilOptimal
+            );
+            
+            if (!normalizationResult) {
+                return null;
+            }
+            
+            const probabiliteBrute = normalizationResult.probabiliteBrute;
+            const probabiliteNormalisee = normalizationResult.probabiliteNormalisee;
+            const cluster = probabiliteBrute < normalizationParams.seuilOptimal ? 1 : 2;
+            
+            let risque;
+            if (probabiliteNormalisee < 0.5) {
+                risque = 'Faible';
+            } else if (probabiliteNormalisee < 0.75) {
+                risque = 'Modéré';
+            } else {
+                risque = 'Élevé';
+            }
+            
+            return {
+                rawScore: rawScore,
+                probabiliteBrute: probabiliteBrute,
+                probabiliteNormalisee: probabiliteNormalisee,
+                cluster: cluster,
+                risque: risque
+            };
+        }
+
+        async function processBatchFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const statusDiv = document.getElementById('batch-status');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            
+            statusDiv.innerHTML = '';
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+            
+            try {
+                const text = await file.text();
+                const lines = text.trim().split('\n');
+                
+                if (lines.length < 2) {
+                    throw new Error('Le fichier doit contenir au moins une ligne d\'en-tête et une ligne de données');
+                }
+                
+                // Parser l'en-tête
+                const headers = parseCSVLine(lines[0]);
+                const sampleIdIndex = headers.findIndex(h => h.toLowerCase().includes('sample') || h.toLowerCase().includes('id'));
+                
+                if (sampleIdIndex === -1) {
+                    throw new Error('Colonne Sample_ID non trouvée dans le fichier');
+                }
+                
+                // Résultats
+                const results = [];
+                const totalPatients = lines.length - 1;
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCSVLine(lines[i]);
+                    if (values.length === 0) continue;
+                    
+                    const patientData = {};
+                    const sampleId = values[sampleIdIndex];
+                    
+                    for (let j = 0; j < headers.length; j++) {
+                        if (j !== sampleIdIndex) {
+                            patientData[headers[j]] = values[j];
+                        }
+                    }
+                    
+                    const result = calculateScoreForPatient(patientData);
+                    
+                    if (result) {
+                        results.push({
+                            Sample_ID: sampleId,
+                            Cluster_Predit: result.cluster,
+                            Proba_Normalisee: result.probabiliteNormalisee.toFixed(6),
+                            Risque: result.risque
+                        });
+                    }
+                    
+                    // Mise à jour de la barre de progression
+                    const progress = Math.round((i / totalPatients) * 100);
+                    progressBar.style.width = progress + '%';
+                    progressBar.textContent = progress + '%';
+                }
+                
+                // Générer le CSV de sortie
+                exportBatchResults(results);
+                
+                statusDiv.innerHTML = `
+                    <div class="success">
+                        ✅ Traitement terminé avec succès!<br>
+                        ${results.length} patient(s) traité(s)<br>
+                        Le fichier de résultats a été téléchargé automatiquement.
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                }, 2000);
+                
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Erreur lors du traitement: ${error.message}
+                    </div>
+                `;
+                progressContainer.style.display = 'none';
+            }
+            
+            // Réinitialiser l'input
+            event.target.value = '';
+        }
+
+        function exportBatchResults(results) {
+            let csv = 'Sample_ID,Cluster_Predit,Proba_Normalisee,Risque\n';
+            
+            for (const result of results) {
+                csv += `${result.Sample_ID},${result.Cluster_Predit},${result.Proba_Normalisee},${result.Risque}\n`;
+            }
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sepsis_batch_results_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
         }
 
         async function loadCoefficientsFromGitHub() {
@@ -836,17 +928,15 @@
                 const text = await response.text();
                 parseCoefficients(text);
                 
-                loadingDiv.innerHTML = '<div style="color: #059669; padding: 15px;">✅ Coefficients chargés avec succès depuis GitHub!</div>';
+                loadingDiv.innerHTML = '<div class="success">✅ Coefficients chargés avec succès depuis GitHub!</div>';
                 
             } catch (error) {
                 loadingDiv.innerHTML = `
                     <div class="error">
                         ❌ Erreur lors du chargement: ${error.message}<br>
-                        Veuillez vérifier que le fichier Coefficients_clust.csv est présent dans votre repository.<br>
                         Utilisation des coefficients d'exemple.
                     </div>
                 `;
-                
                 loadExampleCoefficients();
             }
         }
@@ -859,7 +949,7 @@
             reader.onload = function(e) {
                 parseCoefficients(e.target.result);
                 document.getElementById('loading-status').innerHTML = 
-                    '<div style="color: #059669; padding: 15px;">✅ Coefficients chargés depuis le fichier local!</div>';
+                    '<div class="success">✅ Coefficients chargés depuis le fichier local!</div>';
             };
             reader.readAsText(file);
         }
@@ -886,7 +976,6 @@
                     if (!isNaN(coeffValue) && feature) {
                         coefficients[feature] = coeffValue;
                         
-                        // Déterminer le type depuis la colonne 3 du CSV
                         if (parts.length > 2) {
                             const typeField = parts[2].replace(/^["']|["']$/g, '').trim();
                             if (typeField.toLowerCase().includes('gene') || typeField.toLowerCase().includes('gén')) {
@@ -900,7 +989,6 @@
                             featureTypes[feature] = feature.startsWith('ENSG') ? 'Gene' : 'Clinical';
                         }
                         
-                        // Déterminer la direction depuis la colonne 4 ou par le signe du coefficient
                         if (parts.length > 3) {
                             const directionField = parts[3].replace(/^["']|["']$/g, '').trim();
                             featureDirections[feature] = directionField;
@@ -911,16 +999,13 @@
                 }
             }
             
-            console.log('Coefficients chargés:', coefficients);
-            console.log('Types:', featureTypes);
-            
             if (Object.keys(coefficients).length === 0) {
                 alert('Aucun coefficient trouvé dans le fichier. Utilisation des coefficients d\'exemple.');
                 loadExampleCoefficients();
             } else {
                 generateInputs();
                 displayFeatureStatus();
-                document.getElementById('input-section').style.display = 'block';
+                document.getElementById('main-section').style.display = 'block';
             }
         }
         
@@ -976,7 +1061,7 @@
             
             generateInputs();
             displayFeatureStatus();
-            document.getElementById('input-section').style.display = 'block';
+            document.getElementById('main-section').style.display = 'block';
         }
 
         function displayFeatureStatus() {
@@ -1024,10 +1109,6 @@
                     displayName = `Gène ${feature}`;
                 } else if (feature === 'I_AGE') {
                     displayName = 'Âge (années)';
-                } else if (feature === 'D1_TAILLE') {
-                    displayName = 'Taille (cm)';
-                } else if (feature === 'D1_POIDS') {
-                    displayName = 'Poids (kg)';
                 }
                 
                 const coeffClass = coefficient > 0 ? 'coefficient-positive' : 'coefficient-negative';
@@ -1092,7 +1173,6 @@
                 return;
             }
             
-            // ✅ Calcul du score brut (somme pondérée)
             let rawScore = 0;
             const calculationDetails = [];
             
@@ -1108,7 +1188,6 @@
                 });
             }
             
-            // ✅ Application de la normalisation en deux parties
             const normalizationResult = normaliserScore(
                 rawScore, 
                 normalizationParams.bornesIntervalles, 
@@ -1122,8 +1201,6 @@
             
             const probabiliteBrute = normalizationResult.probabiliteBrute;
             const probabiliteNormalisee = normalizationResult.probabiliteNormalisee;
-            
-            // ✅ Détermination du cluster basé sur la probabilité BRUTE vs seuil 0.7658351
             const cluster = probabiliteBrute < normalizationParams.seuilOptimal ? 1 : 2;
             
             displayResults(rawScore, probabiliteBrute, probabiliteNormalisee, cluster, calculationDetails);
@@ -1164,50 +1241,23 @@
             
             let recommendations = '';
             if (cluster === 1) {
-                recommendations = `
-                    Patient classé dans le groupe à faible risque (Cluster 1). 
-                    Surveillance standard recommandée avec réévaluation périodique. 
-                    La probabilité brute de ${(probabiliteBrute * 100).toFixed(2)}% est inférieure au seuil critique de ${(normalizationParams.seuilOptimal * 100).toFixed(2)}%.
-                    Après normalisation : ${(probabiliteNormalisee * 100).toFixed(1)}% (< 50%).
-                    Pronostic de survie à J90 favorable selon le modèle.
-                `;
+                recommendations = `Patient classé dans le groupe à faible risque (Cluster 1). 
+                    Surveillance standard recommandée. Probabilité normalisée : ${(probabiliteNormalisee * 100).toFixed(1)}% (< 50%).`;
             } else {
-                recommendations = `
-                    Patient classé dans le groupe à haut risque (Cluster 2). 
-                    Surveillance intensive recommandée avec prise en charge thérapeutique agressive. 
-                    La probabilité brute de ${(probabiliteBrute * 100).toFixed(2)}% dépasse le seuil critique de ${(normalizationParams.seuilOptimal * 100).toFixed(2)}%.
-                    Après normalisation : ${(probabiliteNormalisee * 100).toFixed(1)}% (≥ 50%).
-                    Risque accru de mortalité à J90 - considérer l'escalade thérapeutique.
-                `;
+                recommendations = `Patient classé dans le groupe à haut risque (Cluster 2). 
+                    Surveillance intensive recommandée. Probabilité normalisée : ${(probabiliteNormalisee * 100).toFixed(1)}% (≥ 50%).`;
             }
             document.getElementById('recommendation-text').textContent = recommendations;
             
-            let detailsHtml = '<table>';
-            detailsHtml += '<tr><th>Variable</th><th>Type</th><th>Valeur</th><th>Coefficient</th><th>Contribution</th></tr>';
-            
+            let detailsHtml = '<table><tr><th>Variable</th><th>Type</th><th>Valeur</th><th>Coefficient</th><th>Contribution</th></tr>';
             details.sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution));
             
             for (const detail of details) {
                 const contribClass = detail.contribution > 0 ? 'coefficient-positive' : 'coefficient-negative';
-                const typeClass = detail.type === 'Gene' ? 'status-gene' : 'status-clinical';
-                
-                let displayName = detail.feature;
-                if (detail.feature.startsWith('ENSG')) {
-                    displayName = `Gène ${detail.feature}`;
-                } else if (detail.feature === 'I_AGE') {
-                    displayName = 'Âge';
-                } else if (detail.feature === 'D1_TAILLE') {
-                    displayName = 'Taille';
-                } else if (detail.feature === 'D1_POIDS') {
-                    displayName = 'Poids';
-                }
-                
-                const typeLabel = detail.type === 'Gene' ? 'Génomique' : 'Clinique';
-                
                 detailsHtml += `
                     <tr>
-                        <td>${displayName}</td>
-                        <td><span class="${typeClass}" style="padding: 2px 8px; border-radius: 3px;">${typeLabel}</span></td>
+                        <td>${detail.feature}</td>
+                        <td>${detail.type}</td>
                         <td>${detail.value.toFixed(2)}</td>
                         <td>${detail.coefficient.toFixed(4)}</td>
                         <td class="${contribClass}">${detail.contribution > 0 ? '+' : ''}${detail.contribution.toFixed(4)}</td>
@@ -1216,45 +1266,18 @@
             }
             detailsHtml += '</table>';
             
-            detailsHtml += `
-                <div style="margin-top: 20px; padding: 15px; background: #f9fafb; border-radius: 5px;">
-                    <h4 style="margin-bottom: 10px;">🔬 Détails de la normalisation</h4>
-                    <p><strong>Score brut:</strong> ${rawScore.toFixed(4)}</p>
-                    <p><strong>Probabilité brute (logistique):</strong> ${probabiliteBrute.toFixed(4)} (${(probabiliteBrute * 100).toFixed(2)}%)</p>
-                    <p><strong>Classification (seuil sur proba brute):</strong> ${probabiliteBrute < normalizationParams.seuilOptimal ? 'Cluster 1 (< ' + (normalizationParams.seuilOptimal * 100).toFixed(2) + '%)' : 'Cluster 2 (≥ ' + (normalizationParams.seuilOptimal * 100).toFixed(2) + '%)'}</p>
-                    <p><strong>Probabilité normalisée (Min-Max en 2 intervalles):</strong> ${probabiliteNormalisee.toFixed(4)} (${(probabiliteNormalisee * 100).toFixed(2)}%)</p>
-                    <p style="margin-top: 10px; padding: 10px; background: #e0f2fe; border-left: 3px solid #0284c7; border-radius: 3px;">
-                        <strong>📊 Processus:</strong><br>
-                        1. Score brut → Transformation logistique → Proba brute<br>
-                        2. Comparaison proba brute vs seuil ${(normalizationParams.seuilOptimal * 100).toFixed(2)}% → Classification en Cluster<br>
-                        3. Normalisation Min-Max en 2 intervalles (bas: [0, 0.5[, haut: [0.5, 1]) → Proba normalisée [0-1]<br>
-                        4. La barre visuelle affiche la proba normalisée avec seuil à 50%
-                    </p>
-                </div>
-            `;
-            
             document.getElementById('calculation-details').innerHTML = detailsHtml;
-            
             document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
 
         function exportResults() {
             const patientId = document.getElementById('patient-id').value || 'Unknown';
-            const rawScore = document.getElementById('raw-score').textContent;
-            const rawProb = document.getElementById('raw-probability').textContent;
-            const normalizedScore = document.getElementById('normalized-score').textContent;
             const cluster = document.getElementById('cluster').textContent;
+            const normalizedScore = document.getElementById('normalized-score').textContent;
+            const riskLevel = document.getElementById('risk-level').textContent;
             
-            let csv = 'Patient_ID,';
-            csv += Object.keys(coefficients).join(',');
-            csv += ',Score_Raw,Probability_Raw,Probability_Normalized,Cluster\n';
-            
-            csv += `${patientId},`;
-            for (const feature of Object.keys(coefficients)) {
-                const input = document.querySelector(`input[data-feature="${feature}"]`);
-                csv += `${input ? input.value : ''},`;
-            }
-            csv += `${rawScore},${rawProb},${normalizedScore},${cluster}`;
+            let csv = 'Sample_ID,Cluster_Predit,Proba_Normalisee,Risque\n';
+            csv += `${patientId},${cluster},${normalizedScore},${riskLevel}`;
             
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
@@ -1262,10 +1285,6 @@
             a.href = url;
             a.download = `sepsis_score_${patientId}_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
-        }
-
-        function printResults() {
-            window.print();
         }
 
         function resetForm() {
