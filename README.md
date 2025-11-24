@@ -47,8 +47,8 @@ Le modèle a été rigoureusement validé avec les métriques suivantes :
 - **Attribution des clusters** : Basée sur la probabilité brute (seuil = 0.7658)
 
 ### 4. Classification des Patients
-- **Cluster 1** : Patients à faible risque (probabilité brute < 76.58%)
-- **Cluster 2** : Patients à haut risque (probabilité brute ≥ 76.58%)
+- **Cluster 1** : Patients à haut risque (probabilité brute ≥ 76.58%)
+- **Cluster 2** : Patients à faible risque (probabilité brute < 76.58%)
 
 ---
 ## 🌐 Utilisation en ligne
