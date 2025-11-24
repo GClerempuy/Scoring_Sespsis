@@ -284,9 +284,9 @@ proba_brute <- 1 / (1 + exp(-score_brut))
 
 # Étape 2 : Attribution du cluster
 if (proba_brute < 0.7658351) {
-    cluster <- 1  # Faible risque
+    cluster <- 1  # Haut risque
 } else {
-    cluster <- 2  # Haut risque
+    cluster <- 2  # Faible risque
 }
 
 # Étape 3 : Normalisation selon le cluster
@@ -414,7 +414,7 @@ Scoring_Sespsis/
 ├── Scoring_UVSQ_cluster.R      # Script principal
 ├── normalisation.R              # Fonction de normalisation
 ├── README.md                  # Documentation
-├── Coefficients_clust.csv
+└── Coefficients_clust.csv
 ```
 
 ---
@@ -443,23 +443,6 @@ Scoring_Sespsis/
 Ce projet est développé dans un cadre de recherche médicale. L'utilisation est soumise aux réglementations en vigueur concernant les données de santé.
 
 **⚠️ Disclaimer** : Cet outil est destiné à la recherche et à l'aide à la décision clinique. Il ne doit pas être utilisé comme unique critère de décision thérapeutique. Les décisions cliniques finales doivent toujours être prises par des professionnels de santé qualifiés en tenant compte de l'ensemble du contexte clinique.
-
----
-
-## 🌟 Citation
-
-Si vous utilisez ce modèle dans vos travaux de recherche, merci de citer :
-
-```bibtex
-@software{scoring_sepsis_2025,
-  author = {Clerempuy, G.},
-  title = {Scoring_Sepsis: Modèle de Prédiction du Risque de Mortalité dans le Sepsis},
-  year = {2025},
-  publisher = {GitHub},
-  url = {https://github.com/GClerempuy/Scoring_Sespsis},
-  note = {AUC: 0.878, Sensibilité: 88.9\%}
-}
-```
 
 ---
 
