@@ -68,7 +68,7 @@ Pour l'utilisation en ligne via GitHub page, vous aurez besoins de rentrer le ta
 | ENSG00000155229 | MMS19       | 64210         |
 | ENSG00000175216 | CKAP5       | 9793          |
 
-Ainsi que l'âge du patient que vous souhaitez vérifier, la version en ligne ne marche que pour 1 patient à la fois.
+Ainsi que l'âge du patient que vous souhaitez vérifier, la version en ligne marche pour 1 patient à la fois ou via l'utilisation d'un csv.
 
 ## 🛠️ Prérequis Techniques
 
