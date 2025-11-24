@@ -1294,10 +1294,10 @@
                 if (type === 'Gene' && geneDatabase[feature]) {
                     displayName = translateGeneId(feature, currentGeneFormat);
                     
-                    // Afficher les alias pour information
+                    // Afficher les alias pour information (en excluant external_gene_name)
                     const aliases = [];
                     for (const [format, value] of Object.entries(geneDatabase[feature])) {
-                        if (format !== currentGeneFormat && value) {
+                        if (format !== currentGeneFormat && format !== 'external_gene_name' && value) {
                             aliases.push(value);
                         }
                     }
