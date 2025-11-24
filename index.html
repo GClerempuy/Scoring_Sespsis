@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur de Score de Sepsis - UVSQ (avec Batch)</title>
+    <title>Calculateur de Score de Sepsis - UVSQ (Multi-format)</title>
     <style>
         * {
             margin: 0;
@@ -148,6 +148,15 @@
             background: #dcfce7;
             border: 1px solid #86efac;
             color: #166534;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .info {
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            color: #1e40af;
             padding: 15px;
             border-radius: 10px;
             margin: 20px 0;
@@ -306,6 +315,57 @@
             justify-content: center;
             color: white;
             font-weight: bold;
+        }
+
+        .gene-format-selector {
+            background: #f0fdf4;
+            border: 2px solid #86efac;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .gene-format-selector h3 {
+            color: #166534;
+            margin-bottom: 15px;
+        }
+
+        .format-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .format-option {
+            padding: 10px 15px;
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .format-option:hover {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .format-option.active {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .gene-alias {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            margin-left: 8px;
+            font-weight: normal;
         }
 
         #results {
@@ -508,12 +568,12 @@
     <div class="container">
         <div class="header">
             <h1>📊 Calculateur de Score de Sepsis</h1>
-            <p>Modèle de stratification des risques basé sur LASSO et clustering - UVSQ</p>
+            <p>Modèle de stratification des risques avec traduction automatique des identifiants de gènes - UVSQ</p>
         </div>
 
         <div class="warning-banner">
             <strong>⚠️ Avertissement médical :</strong> Cet outil est destiné à un usage de recherche et d'aide à la décision clinique. 
-            Il ne remplace pas le jugement médical professionnel. Les résultats doivent être interprétés dans le contexte clinique global du patient.
+            Il ne remplace pas le jugement médical professionnel.
         </div>
 
         <div class="content">
@@ -548,6 +608,25 @@
 
                 <!-- Mode Patient Unique -->
                 <div id="single-mode" class="mode-content active">
+                    <!-- Sélecteur de format de gènes -->
+                    <div class="gene-format-selector">
+                        <h3>🔬 Format d'affichage des gènes</h3>
+                        <div class="format-options">
+                            <div class="format-option active" onclick="changeGeneFormat('ensembl_gene_id')" data-format="ensembl_gene_id">
+                                <strong>Ensembl ID</strong><br>
+                                <small>ENSG00000134014</small>
+                            </div>
+                            <div class="format-option" onclick="changeGeneFormat('hgnc_symbol')" data-format="hgnc_symbol">
+                                <strong>HGNC Symbol</strong><br>
+                                <small>ELP3</small>
+                            </div>
+                            <div class="format-option" onclick="changeGeneFormat('entrezgene_id')" data-format="entrezgene_id">
+                                <strong>Entrez ID</strong><br>
+                                <small>55140</small>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="section">
                         <h2>📋 Métadonnées du Patient</h2>
                         <div class="input-grid">
@@ -587,21 +666,20 @@
                         <div class="batch-section">
                             <h3>📊 Traitement par Lot (Batch Processing)</h3>
                             <p style="color: #6b7280; margin: 15px 0;">
-                                Téléchargez un fichier CSV contenant plusieurs patients pour obtenir les prédictions en masse
+                                Téléchargez un fichier CSV avec plusieurs patients. Les identifiants de gènes seront automatiquement traduits.
                             </p>
                             
                             <div class="batch-info">
                                 <h4>📋 Format du fichier CSV requis :</h4>
                                 <ul>
-                                    <li>Première colonne : <strong>Sample_ID</strong> (identifiant unique du patient)</li>
-                                    <li>Colonnes suivantes : une colonne par variable du modèle</li>
-                                    <li>Les noms des colonnes doivent correspondre exactement aux noms des variables chargées</li>
-                                    <li>Séparateur : virgule (,)</li>
-                                    <li>Première ligne : en-têtes de colonnes</li>
+                                    <li>Première colonne : <strong>Sample_ID</strong> (identifiant unique)</li>
+                                    <li>Colonnes suivantes : variables du modèle (tout format d'ID accepté)</li>
+                                    <li>Les identifiants de gènes seront automatiquement convertis</li>
+                                    <li>Formats acceptés : Ensembl ID, Gene Name, HGNC Symbol, Entrez ID</li>
                                 </ul>
                                 <p style="margin-top: 10px;"><strong>Exemple :</strong></p>
                                 <code style="display: block; background: white; padding: 10px; border-radius: 5px; margin-top: 5px;">
-                                    Sample_ID,ENSG00000134014,ENSG00000137802,I_AGE<br>
+                                    Sample_ID,ELP3,MAPKBP1,I_AGE<br>
                                     PAT001,2.046,1.360,64<br>
                                     PAT002,1.823,1.542,58
                                 </code>
@@ -694,6 +772,72 @@
         let coefficients = {};
         let featureTypes = {};
         let featureDirections = {};
+        let currentGeneFormat = 'ensembl_gene_id';
+        
+        // Base de données de traduction des gènes
+        const geneDatabase = {
+            'ENSG00000134014': {
+                ensembl_gene_id: 'ENSG00000134014',
+                external_gene_name: 'ELP3',
+                hgnc_symbol: 'ELP3',
+                entrezgene_id: '55140'
+            },
+            'ENSG00000137802': {
+                ensembl_gene_id: 'ENSG00000137802',
+                external_gene_name: 'MAPKBP1',
+                hgnc_symbol: 'MAPKBP1',
+                entrezgene_id: '23005'
+            },
+            'ENSG00000155229': {
+                ensembl_gene_id: 'ENSG00000155229',
+                external_gene_name: 'MMS19',
+                hgnc_symbol: 'MMS19',
+                entrezgene_id: '64210'
+            },
+            'ENSG00000175216': {
+                ensembl_gene_id: 'ENSG00000175216',
+                external_gene_name: 'CKAP5',
+                hgnc_symbol: 'CKAP5',
+                entrezgene_id: '9793'
+            }
+        };
+        
+        // Index inversé pour la recherche rapide
+        let geneIndexes = {};
+        
+        function buildGeneIndexes() {
+            geneIndexes = {};
+            for (const [ensembl, data] of Object.entries(geneDatabase)) {
+                for (const [format, value] of Object.entries(data)) {
+                    const key = String(value).toLowerCase();
+                    if (!geneIndexes[key]) {
+                        geneIndexes[key] = [];
+                    }
+                    geneIndexes[key].push(ensembl);
+                }
+            }
+        }
+        
+        function translateGeneId(geneId, targetFormat = 'ensembl_gene_id') {
+            const searchKey = String(geneId).toLowerCase();
+            
+            // Recherche directe
+            if (geneIndexes[searchKey]) {
+                const ensemblId = geneIndexes[searchKey][0];
+                return geneDatabase[ensemblId][targetFormat] || geneId;
+            }
+            
+            // Si pas trouvé, retourner l'ID original
+            return geneId;
+        }
+        
+        function getCanonicalGeneId(geneId) {
+            const searchKey = String(geneId).toLowerCase();
+            if (geneIndexes[searchKey]) {
+                return geneIndexes[searchKey][0];
+            }
+            return geneId;
+        }
         
         const normalizationParams = {
             seuilOptimal: 0.7658351,
@@ -721,6 +865,19 @@
                 document.getElementById('batch-mode').classList.add('active');
                 document.getElementById('results').style.display = 'none';
             }
+        }
+
+        function changeGeneFormat(format) {
+            currentGeneFormat = format;
+            
+            // Mise à jour des boutons
+            document.querySelectorAll('.format-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`.format-option[data-format="${format}"]`).classList.add('active');
+            
+            // Régénération des inputs avec le nouveau format
+            generateInputs();
         }
 
         function normaliserScore(scoreBrut, bornesIntervalles, seuilOptimal) {
@@ -765,10 +922,18 @@
 
         function calculateScoreForPatient(patientData) {
             let rawScore = 0;
+            const translatedData = {};
             
+            // Traduction des identifiants
+            for (const [key, value] of Object.entries(patientData)) {
+                const canonicalId = getCanonicalGeneId(key);
+                translatedData[canonicalId] = value;
+            }
+            
+            // Calcul du score
             for (const [feature, coefficient] of Object.entries(coefficients)) {
-                if (patientData.hasOwnProperty(feature)) {
-                    const value = parseFloat(patientData[feature]);
+                if (translatedData.hasOwnProperty(feature)) {
+                    const value = parseFloat(translatedData[feature]);
                     if (!isNaN(value)) {
                         rawScore += value * coefficient;
                     }
@@ -828,15 +993,33 @@
                     throw new Error('Le fichier doit contenir au moins une ligne d\'en-tête et une ligne de données');
                 }
                 
-                // Parser l'en-tête
                 const headers = parseCSVLine(lines[0]);
                 const sampleIdIndex = headers.findIndex(h => h.toLowerCase().includes('sample') || h.toLowerCase().includes('id'));
                 
                 if (sampleIdIndex === -1) {
-                    throw new Error('Colonne Sample_ID non trouvée dans le fichier');
+                    throw new Error('Colonne Sample_ID non trouvée');
                 }
                 
-                // Résultats
+                // Affichage des traductions détectées
+                const translationInfo = [];
+                for (let i = 0; i < headers.length; i++) {
+                    if (i !== sampleIdIndex) {
+                        const canonicalId = getCanonicalGeneId(headers[i]);
+                        if (canonicalId !== headers[i]) {
+                            translationInfo.push(`${headers[i]} → ${canonicalId}`);
+                        }
+                    }
+                }
+                
+                if (translationInfo.length > 0) {
+                    statusDiv.innerHTML = `
+                        <div class="info">
+                            🔄 Traductions détectées :<br>
+                            ${translationInfo.join('<br>')}
+                        </div>
+                    `;
+                }
+                
                 const results = [];
                 const totalPatients = lines.length - 1;
                 
@@ -864,20 +1047,18 @@
                         });
                     }
                     
-                    // Mise à jour de la barre de progression
                     const progress = Math.round((i / totalPatients) * 100);
                     progressBar.style.width = progress + '%';
                     progressBar.textContent = progress + '%';
                 }
                 
-                // Générer le CSV de sortie
                 exportBatchResults(results);
                 
-                statusDiv.innerHTML = `
+                statusDiv.innerHTML += `
                     <div class="success">
-                        ✅ Traitement terminé avec succès!<br>
+                        ✅ Traitement terminé !<br>
                         ${results.length} patient(s) traité(s)<br>
-                        Le fichier de résultats a été téléchargé automatiquement.
+                        Fichier téléchargé automatiquement
                     </div>
                 `;
                 
@@ -888,13 +1069,12 @@
             } catch (error) {
                 statusDiv.innerHTML = `
                     <div class="error">
-                        ❌ Erreur lors du traitement: ${error.message}
+                        ❌ Erreur : ${error.message}
                     </div>
                 `;
                 progressContainer.style.display = 'none';
             }
             
-            // Réinitialiser l'input
             event.target.value = '';
         }
 
@@ -928,13 +1108,13 @@
                 const text = await response.text();
                 parseCoefficients(text);
                 
-                loadingDiv.innerHTML = '<div class="success">✅ Coefficients chargés avec succès depuis GitHub!</div>';
+                loadingDiv.innerHTML = '<div class="success">✅ Coefficients chargés avec succès !</div>';
                 
             } catch (error) {
                 loadingDiv.innerHTML = `
                     <div class="error">
-                        ❌ Erreur lors du chargement: ${error.message}<br>
-                        Utilisation des coefficients d'exemple.
+                        ❌ Erreur : ${error.message}<br>
+                        Utilisation des coefficients d'exemple
                     </div>
                 `;
                 loadExampleCoefficients();
@@ -949,7 +1129,7 @@
             reader.onload = function(e) {
                 parseCoefficients(e.target.result);
                 document.getElementById('loading-status').innerHTML = 
-                    '<div class="success">✅ Coefficients chargés depuis le fichier local!</div>';
+                    '<div class="success">✅ Coefficients chargés depuis le fichier local !</div>';
             };
             reader.readAsText(file);
         }
@@ -970,7 +1150,11 @@
                 const parts = parseCSVLine(line);
                 
                 if (parts.length >= 2) {
-                    const feature = parts[0].replace(/^["']|["']$/g, '').trim();
+                    let feature = parts[0].replace(/^["']|["']$/g, '').trim();
+                    
+                    // Traduction automatique vers l'ID canonique (Ensembl)
+                    feature = getCanonicalGeneId(feature);
+                    
                     const coeffValue = parseFloat(parts[1].replace(/^["']|["']$/g, '').replace(',', '.'));
                     
                     if (!isNaN(coeffValue) && feature) {
@@ -1000,7 +1184,7 @@
             }
             
             if (Object.keys(coefficients).length === 0) {
-                alert('Aucun coefficient trouvé dans le fichier. Utilisation des coefficients d\'exemple.');
+                alert('Aucun coefficient trouvé. Utilisation des coefficients d\'exemple.');
                 loadExampleCoefficients();
             } else {
                 generateInputs();
@@ -1105,8 +1289,21 @@
                 const safeId = 'input_' + feature.replace(/[^a-zA-Z0-9_]/g, '_');
                 
                 let displayName = feature;
-                if (feature.startsWith('ENSG')) {
-                    displayName = `Gène ${feature}`;
+                let aliasText = '';
+                
+                if (type === 'Gene' && geneDatabase[feature]) {
+                    displayName = translateGeneId(feature, currentGeneFormat);
+                    
+                    // Afficher les alias pour information
+                    const aliases = [];
+                    for (const [format, value] of Object.entries(geneDatabase[feature])) {
+                        if (format !== currentGeneFormat && value) {
+                            aliases.push(value);
+                        }
+                    }
+                    if (aliases.length > 0) {
+                        aliasText = `<span class="gene-alias">${aliases.join(', ')}</span>`;
+                    }
                 } else if (feature === 'I_AGE') {
                     displayName = 'Âge (années)';
                 }
@@ -1116,6 +1313,7 @@
                 inputGroup.innerHTML = `
                     <label for="${safeId}">
                         ${displayName}
+                        ${aliasText}
                         <span class="coefficient-display ${coeffClass}">
                             ${coefficient > 0 ? '+' : ''}${coefficient.toFixed(4)}
                         </span>
@@ -1254,9 +1452,15 @@
             
             for (const detail of details) {
                 const contribClass = detail.contribution > 0 ? 'coefficient-positive' : 'coefficient-negative';
+                
+                let displayName = detail.feature;
+                if (detail.type === 'Gene' && geneDatabase[detail.feature]) {
+                    displayName = translateGeneId(detail.feature, currentGeneFormat);
+                }
+                
                 detailsHtml += `
                     <tr>
-                        <td>${detail.feature}</td>
+                        <td>${displayName}</td>
                         <td>${detail.type}</td>
                         <td>${detail.value.toFixed(2)}</td>
                         <td>${detail.coefficient.toFixed(4)}</td>
@@ -1298,7 +1502,9 @@
             document.getElementById('results').style.display = 'none';
         }
 
+        // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
+            buildGeneIndexes();
             loadCoefficientsFromGitHub();
         });
     </script>
