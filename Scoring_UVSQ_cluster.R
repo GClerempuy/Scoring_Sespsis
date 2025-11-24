@@ -188,11 +188,14 @@ verbose_print(paste("Probabilités brutes - Min:", round(min(proba_brute), 4),
 # ============================================================================
 verbose_print(paste("Attribution des clusters avec seuil optimal:", round(seuil_optimal, 4)), opt$verbose)
 
-# Cluster 1 si proba < seuil, Cluster 2 sinon
-clusters <- ifelse(proba_brute < seuil_optimal, 1, 2)
+# LOGIQUE CORRIGÉE:
+# Cluster 0 si proba < seuil (HAUT RISQUE - mauvais pronostic)
+# Cluster 1 si proba >= seuil (FAIBLE RISQUE - bon pronostic)
+# IMPORTANT: Cela correspond aux résultats statistiques où Cluster 1 a 70% de survie
+clusters <- ifelse(proba_brute < seuil_optimal, 0, 1)
 
-verbose_print(paste("Distribution des clusters - Cluster 1:", sum(clusters == 1),
-                   "Cluster 2:", sum(clusters == 2)), opt$verbose)
+verbose_print(paste("Distribution des clusters - Cluster 0 (haut risque):", sum(clusters == 0),
+                   "Cluster 1 (faible risque):", sum(clusters == 1)), opt$verbose)
 
 # ============================================================================
 # NORMALISATION DES SCORES AVEC LA FONCTION PERSONNALISÉE
@@ -241,10 +244,18 @@ if (!is.null(opt$truth_column) && opt$truth_column %in% colnames(data)) {
   
   verite <- data[[opt$truth_column]]
   
-  # Convertir en binaire si nécessaire (1,2 -> 0,1)
+  # Convertir en binaire si nécessaire
+  # Si les données sont en 1,2 -> convertir en 0,1
   if (all(verite %in% c(1, 2))) {
     verite_binaire <- ifelse(verite == 2, 1, 0)
-    
+  } else if (all(verite %in% c(0, 1))) {
+    verite_binaire <- verite
+  } else {
+    warning("Format de la colonne de vérité non reconnu")
+    verite_binaire <- NULL
+  }
+  
+  if (!is.null(verite_binaire)) {
     # Calcul ROC et AUC avec Proba_Brute
     roc_brute <- roc(verite_binaire, proba_brute, quiet = TRUE)
     auc_brute <- auc(roc_brute)
@@ -261,8 +272,17 @@ if (!is.null(opt$truth_column) && opt$truth_column %in% colnames(data)) {
     
     # Calcul de la sensibilité et spécificité
     if (nrow(confusion_matrix) == 2 && ncol(confusion_matrix) == 2) {
-      sensitivity <- confusion_matrix[2, 2] / sum(confusion_matrix[2, ])
-      specificity <- confusion_matrix[1, 1] / sum(confusion_matrix[1, ])
+      # Sensibilité = vrais positifs / (vrais positifs + faux négatifs)
+      # Spécificité = vrais négatifs / (vrais négatifs + faux positifs)
+      
+      # Adapter selon le format des données de vérité
+      if (all(verite %in% c(1, 2))) {
+        sensitivity <- confusion_matrix["2", "1"] / sum(confusion_matrix["2", ])
+        specificity <- confusion_matrix["1", "0"] / sum(confusion_matrix["1", ])
+      } else {
+        sensitivity <- confusion_matrix["1", "1"] / sum(confusion_matrix["1", ])
+        specificity <- confusion_matrix["0", "0"] / sum(confusion_matrix["0", ])
+      }
     } else {
       sensitivity <- NA
       specificity <- NA
@@ -278,8 +298,8 @@ if (!is.null(opt$truth_column) && opt$truth_column %in% colnames(data)) {
     cat("🎯 Accuracy:", round(accuracy * 100, 2), "%\n")
     
     if (!is.na(sensitivity)) {
-      cat("🔍 Sensibilité (Cluster 2):", round(sensitivity * 100, 2), "%\n")
-      cat("🔍 Spécificité (Cluster 1):", round(specificity * 100, 2), "%\n")
+      cat("🔍 Sensibilité (Cluster 1 - bon pronostic):", round(sensitivity * 100, 2), "%\n")
+      cat("🔍 Spécificité (Cluster 0 - mauvais pronostic):", round(specificity * 100, 2), "%\n")
     }
     
     cat("\nMatrice de confusion:\n")
@@ -291,7 +311,11 @@ if (!is.null(opt$truth_column) && opt$truth_column %in% colnames(data)) {
     cat("------------------------\n")
     for (clust in sort(unique(verite))) {
       subset_clust <- output_data[verite == clust, ]
-      cat(sprintf("Cluster %d (n=%d):\n", clust, nrow(subset_clust)))
+      risque_label <- ifelse(clust %in% c(0, 1), 
+                            ifelse(clust == 0, "haut risque", "faible risque"),
+                            ifelse(clust == 1, "haut risque", "faible risque"))
+      
+      cat(sprintf("Cluster %d (%s, n=%d):\n", clust, risque_label, nrow(subset_clust)))
       cat(sprintf("  Score brut: %.4f ± %.4f [%.4f, %.4f]\n", 
                  mean(subset_clust$Score_Brut), 
                  sd(subset_clust$Score_Brut),
@@ -308,8 +332,6 @@ if (!is.null(opt$truth_column) && opt$truth_column %in% colnames(data)) {
                  min(subset_clust$Proba_Normalisee, na.rm = TRUE),
                  max(subset_clust$Proba_Normalisee, na.rm = TRUE)))
     }
-  } else {
-    warning("Les valeurs de la colonne de vérité ne sont pas 1 et 2")
   }
 }
 
@@ -336,4 +358,14 @@ verbose_print(paste("Écart-type des scores bruts:", round(sd(raw_scores), 4)), 
 verbose_print(paste("Seuil optimal utilisé:", round(seuil_optimal, 4)), opt$verbose)
 verbose_print(paste("Fichier de sortie créé:", opt$output), opt$verbose)
 
-cat("\n✅ Processus terminé avec succès!\n")
+cat("\n============================================\n")
+cat("INTERPRÉTATION DES CLUSTERS\n")
+cat("============================================\n")
+cat("Cluster 0: HAUT RISQUE (proba brute < seuil)\n")
+cat("  - Mauvais pronostic de survie\n")
+cat("  - Nécessite surveillance intensive\n\n")
+cat("Cluster 1: FAIBLE RISQUE (proba brute >= seuil)\n")
+cat("  - Bon pronostic de survie\n")
+cat("  - Surveillance standard\n\n")
+
+cat("✅ Processus terminé avec succès!\n")
