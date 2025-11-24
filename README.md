@@ -230,28 +230,28 @@ Verite   1   2
 
 #### Probabilité Normalisée (Proba_Normalisee)
 - **Normalisation segmentée** par cluster
-- **Intervalle bas [0, 0.5[** : Cluster 1 (faible risque)
+- **Intervalle bas [0, 0.5[** : Cluster 1 (haut risque)
   - Bornes : 0.390448 - 0.7630
-- **Intervalle haut [0.5, 1]** : Cluster 2 (haut risque)
+- **Intervalle haut [0.5, 1]** : Cluster 2 (faible risque)
   - Bornes : 0.7687 - 0.9767
 
 ### Classification des Clusters
 
-#### 🟢 Cluster 1 : Pronostic Favorable
-- **Probabilité brute** < 0.7658
-- **Probabilité normalisée** < 0.5
-- **Caractéristiques** :
-  - Risque faible de mortalité
-  - Probabilité de survie à J90 plus élevée
-  - Surveillance standard recommandée
-
-#### 🔴 Cluster 2 : Pronostic Réservé
-- **Probabilité brute** ≥ 0.7658
-- **Probabilité normalisée** ≥ 0.5
+#### 🔴 Cluster 1 : Pronostic Réservé
+- **Probabilité brute** ≤ 0.7658
+- **Probabilité normalisée** ≤ 0.5
 - **Caractéristiques** :
   - Risque élevé de mortalité
   - Nécessite surveillance intensive
   - Prise en charge thérapeutique renforcée
+
+#### 🟢 Cluster 2 : Pronostic Favorable
+- **Probabilité brute** > 0.7658
+- **Probabilité normalisée** > 0.5
+- **Caractéristiques** :
+  - Risque faible de mortalité
+  - Probabilité de survie à J90 plus élevée
+  - Surveillance standard recommandée
 
 ### 📊 Performance Clinique du Modèle
 
