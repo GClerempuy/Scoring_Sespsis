@@ -405,11 +405,11 @@
             margin-bottom: 5px;
         }
 
-        .cluster-0 {
+        .cluster-1 {
             color: #10b981;
         }
 
-        .cluster-1 {
+        .cluster-2 {
             color: #ef4444;
         }
 
@@ -422,7 +422,7 @@
 
         .risk-bar {
             height: 40px;
-            background: linear-gradient(to right, #10b981 0%, #fbbf24 50%, #ef4444 100%);
+            background: linear-gradient(to right, #ef4444 0%, #fbbf24 50%, #10b981 100%);
             border-radius: 20px;
             position: relative;
             margin: 20px 0;
@@ -740,8 +740,8 @@
                         <div class="threshold-label">Seuil (50%)</div>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                        <span style="color: #10b981; font-weight: bold;">Faible Risque</span>
                         <span style="color: #ef4444; font-weight: bold;">Haut Risque</span>
+                        <span style="color: #10b981; font-weight: bold;">Faible Risque</span>
                     </div>
                 </div>
 
@@ -1399,7 +1399,8 @@
             
             const probabiliteBrute = normalizationResult.probabiliteBrute;
             const probabiliteNormalisee = normalizationResult.probabiliteNormalisee;
-            const cluster = probabiliteBrute < normalizationParams.seuilOptimal ? 0 : 1;
+            // Cluster 1 (proba < seuil) = BON pronostic, Cluster 2 (proba >= seuil) = MAUVAIS pronostic
+            const cluster = probabiliteBrute < normalizationParams.seuilOptimal ? 1 : 2;
             
             displayResults(rawScore, probabiliteBrute, probabiliteNormalisee, cluster, calculationDetails);
         }
@@ -1418,15 +1419,12 @@
             clusterElement.className = `result-value cluster-${cluster}`;
             
             document.getElementById('cluster-desc').textContent = 
-                cluster === 0 ? 'Faible risque' : 'Haut risque';
+                cluster === 1 ? 'Faible risque' : 'Haut risque';
             
             const riskLevel = document.getElementById('risk-level');
-            if (probabiliteNormalisee < 0.5) {
+            if (cluster === 1) {
                 riskLevel.textContent = 'Faible';
                 riskLevel.style.color = '#10b981';
-            } else if (probabiliteNormalisee < 0.75) {
-                riskLevel.textContent = 'Modéré';
-                riskLevel.style.color = '#fbbf24';
             } else {
                 riskLevel.textContent = 'Élevé';
                 riskLevel.style.color = '#ef4444';
@@ -1438,11 +1436,11 @@
                 `${(probabiliteNormalisee * 100).toFixed(1)}%`;
             
             let recommendations = '';
-            if (cluster === 0) {
-                recommendations = `Patient classé dans le groupe à faible risque (Cluster 0). 
+            if (cluster === 1) {
+                recommendations = `Patient classé dans le groupe à faible risque (Cluster 1). 
                     Surveillance standard recommandée. Probabilité normalisée : ${(probabiliteNormalisee * 100).toFixed(1)}% (< 50%).`;
             } else {
-                recommendations = `Patient classé dans le groupe à haut risque (Cluster 1). 
+                recommendations = `Patient classé dans le groupe à haut risque (Cluster 2). 
                     Surveillance intensive recommandée. Probabilité normalisée : ${(probabiliteNormalisee * 100).toFixed(1)}% (≥ 50%).`;
             }
             document.getElementById('recommendation-text').textContent = recommendations;
